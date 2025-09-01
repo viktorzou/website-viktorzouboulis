@@ -6,7 +6,7 @@ const posts = (await getCollection("blog"))
   .sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 ---
 
-<Layout title="Blog — Viktor Zoubouli">
+<Layout title="Blog — Viktor Zouboulis">
   <!-- Hero Section -->
   <section class="py-20 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
     <div class="max-w-4xl mx-auto px-4 text-center">
@@ -54,7 +54,7 @@ const posts = (await getCollection("blog"))
                     <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                       <span class="text-white text-sm font-semibold">VZ</span>
                     </div>
-                    <span class="text-slate-700 dark:text-slate-300 font-medium">Viktor Zoubouli</span>
+                    <span class="text-slate-700 dark:text-slate-300 font-medium">Viktor Zouboulis</span>
                   </div>
                   
                   <a href={`/blog/${slug}/`} class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
