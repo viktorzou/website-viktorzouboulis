@@ -1,0 +1,22 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog"))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+<Layout title="Blog — My Astro Site">
+  <h1 class="text-2xl font-bold mb-6">Blog</h1>
+  <ul class="space-y-4">
+    {posts.map(({ slug, data }) => (
+      <li>
+        <a class="text-blue-600 underline" href={`/blog/${slug}/`}>{data.title}</a>
+        <div class="text-sm text-neutral-600">
+          {data.pubDate.toDateString()}
+          {data.description ? ` — ${data.description}` : ""}
+        </div>
+      </li>
+    ))}
+  </ul>
+</Layout>

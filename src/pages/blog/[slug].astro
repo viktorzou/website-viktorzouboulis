@@ -1,0 +1,18 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getEntryBySlug } from "astro:content";
+import { AstroError } from "astro/errors";
+
+const { slug } = Astro.params;
+const entry = await getEntryBySlug("blog", slug!);
+if (!entry) throw new AstroError(`Post not found: ${slug}`);
+
+const { Content, data } = await entry.render();
+---
+<Layout title={`${data.title} — Blog`}>
+  <article class="prose">
+    <h1>{data.title}</h1>
+    <p class="text-sm text-neutral-600">{data.pubDate.toDateString()}</p>
+    <Content />
+  </article>
+</Layout>
