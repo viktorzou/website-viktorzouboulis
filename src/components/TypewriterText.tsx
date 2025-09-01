@@ -26,15 +26,15 @@ const TypewriterText: React.FC = () => {
     if (!isDeleting && charIndex < currentWord.length) {
       // Typing
       const timer = setTimeout(() => {
+        setCharIndex(prev => prev + 1);
         setText(currentWord.substring(0, charIndex + 1));
-        setCharIndex(charIndex + 1);
       }, 100);
       return () => clearTimeout(timer);
     } else if (isDeleting && charIndex > 0) {
       // Deleting
       const timer = setTimeout(() => {
+        setCharIndex(prev => prev - 1);
         setText(currentWord.substring(0, charIndex - 1));
-        setCharIndex(charIndex - 1);
       }, 50);
       return () => clearTimeout(timer);
     } else {
@@ -57,7 +57,7 @@ const TypewriterText: React.FC = () => {
         return () => clearTimeout(timer);
       }
     }
-  }, [mounted, text, wordIndex, charIndex, isDeleting, words]);
+  }, [mounted, wordIndex, charIndex, isDeleting, words]);
 
   if (!mounted) {
     return null; // Don't render anything until mounted
