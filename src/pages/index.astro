@@ -1,12 +1,24 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import Welcome from "../components/Welcome.astro";
 ---
+<Layout title="Home — My Astro Site">
+  <h1 class="text-4xl font-extrabold tracking-tight mb-4">Hello World! 👋</h1>
+  <p class="text-slate-600 dark:text-slate-300 mb-8">Deployed on Cloudflare Pages.</p>
 
-<Layout>
-	<h1>Hello World!</h1>
-	<Welcome />
+  <div class="grid gap-6 sm:grid-cols-2">
+    <a href="/blog" class="block rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md transition">
+      <h2 class="text-xl font-semibold mb-2">Read the Blog →</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400">Posts with nice typography.</p>
+    </a>
+
+    <a href="/about" class="block rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-md transition">
+      <h2 class="text-xl font-semibold mb-2">About this site →</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400">Built with Astro + Tailwind.</p>
+    </a>
+  </div>
+
+  <div class="mt-8">
+    <Welcome />
+  </div>
 </Layout>

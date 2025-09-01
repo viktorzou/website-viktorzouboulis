@@ -22,9 +22,9 @@ const pub = meta.pubDate ? new Date(meta.pubDate) : undefined;
 const { Content } = await post.render();
 ---
 <Layout title={`${title} — Blog`}>
-  <article class="prose">
+  <article class="prose dark:prose-invert max-w-none">
     <h1>{title}</h1>
-    {pub && <p class="text-sm text-neutral-600">{pub.toDateString()}</p>}
+    {pub && <p class="text-sm text-slate-500">{pub.toDateString()}</p>}
     <Content />
   </article>
 </Layout>

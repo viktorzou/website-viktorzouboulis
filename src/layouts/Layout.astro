@@ -1,27 +1,46 @@
 ---
 const { title = "My Astro Site" } = Astro.props;
 ---
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>{title}</title>
-    <meta name="description" content="My Astro + Cloudflare site" />
-    <link rel="icon" href="/favicon.svg" />
+    <script is:inline>
+      // Dark mode: respect saved theme or system preference
+      const saved = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if ((saved === "dark") || (!saved && prefersDark)) {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
   </head>
-  <body style="font-family: system-ui; margin: 0; line-height: 1.6;">
-    <header style="padding: 1rem; border-bottom: 1px solid #eee;">
-      <nav style="display:flex; gap:.75rem;">
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/blog">Blog</a>
-        <a href="/contact">Contact</a>
-      </nav>
+  <body class="min-h-full bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <header class="border-b border-slate-200 dark:border-slate-800">
+      <div class="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
+        <nav class="flex gap-4 text-sm">
+          <a class="hover:underline" href="/">Home</a>
+          <a class="hover:underline" href="/about">About</a>
+          <a class="hover:underline" href="/blog">Blog</a>
+        </nav>
+        <button
+          class="rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm"
+          onclick="
+            const root = document.documentElement;
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+          "
+        >
+          Toggle theme
+        </button>
+      </div>
     </header>
-    <main style="padding: 2rem; max-width: 760px; margin: 0 auto;">
+
+    <main class="mx-auto max-w-4xl px-4 py-8">
       <slot />
     </main>
-    <footer style="padding: 2rem; border-top: 1px solid #eee; text-align:center;">
+
+    <footer class="mx-auto max-w-4xl px-4 py-8 text-sm text-slate-500">
       © {new Date().getFullYear()} — Built with Astro
     </footer>
   </body>
