@@ -21,10 +21,80 @@ const pub = meta.pubDate ? new Date(meta.pubDate) : undefined;
 // Render MD content (Content is a component)
 const { Content } = await post.render();
 ---
-<Layout title={`${title} — Blog`}>
-  <article class="prose dark:prose-invert max-w-none">
-    <h1>{title}</h1>
-    {pub && <p class="text-sm text-slate-500">{pub.toDateString()}</p>}
-    <Content />
-  </article>
+
+<Layout title={`${title} — Viktor Zoubouli`}>
+  <!-- Article Header -->
+  <section class="py-20 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="text-center mb-8">
+        <a href="/blog" class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors mb-6">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Blog
+        </a>
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-6 leading-tight">
+          {title}
+        </h1>
+        {pub && (
+          <div class="flex items-center justify-center gap-4 text-slate-600 dark:text-slate-400">
+            <time datetime={pub.toISOString()}>
+              {pub.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </time>
+            <span>•</span>
+            <span>5 min read</span>
+          </div>
+        )}
+      </div>
+      
+      {meta.description && (
+        <div class="max-w-3xl mx-auto">
+          <p class="text-xl text-slate-600 dark:text-slate-300 text-center leading-relaxed">
+            {meta.description}
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Article Content -->
+  <section class="py-16">
+    <div class="max-w-4xl mx-auto px-4">
+      <article class="prose prose-lg dark:prose-invert max-w-none prose-headings:text-slate-900 prose-headings:dark:text-slate-100 prose-p:text-slate-600 prose-p:dark:text-slate-300 prose-a:text-blue-600 prose-a:dark:text-blue-400 prose-strong:text-slate-900 prose-strong:dark:text-slate-100 prose-code:text-slate-800 prose-code:dark:text-slate-200 prose-code:bg-slate-100 prose-code:dark:bg-slate-800 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-blockquote:border-l-blue-600 prose-blockquote:dark:border-l-blue-400 prose-blockquote:bg-slate-50 prose-blockquote:dark:bg-slate-800 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg">
+        <Content />
+      </article>
+      
+      <!-- Article Footer -->
+      <div class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <span class="text-white font-semibold">VZ</span>
+            </div>
+            <div>
+              <p class="font-medium text-slate-900 dark:text-slate-100">Viktor Zoubouli</p>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Full-Stack Developer</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-4">
+            <a href="#" class="p-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+              </svg>
+            </a>
+            <a href="#" class="p-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.047-1.032-3.047-1.032 0-1.21.806-1.21 1.972v3.644h-2.454V9.351h2.454v2.088c.318-.386.927-.989 2.26-.989 2.402 0 2.792 1.581 2.792 3.821v5.201zM9.351 20.452H6.896V9.351h2.455v11.101zM8.674 7.351c-.792 0-1.434-.641-1.434-1.434s.642-1.434 1.434-1.434 1.434.641 1.434 1.434-.642 1.434-1.434 1.434z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </Layout>

@@ -1,7 +1,175 @@
 ---
 import Layout from "../layouts/Layout.astro";
 ---
-<Layout title="About — My Astro Site">
-  <h1>About</h1>
-  <p>This site is built with Astro and deployed on Cloudflare Pages.</p>
+
+<Layout title="About — Viktor Zoubouli">
+  <!-- Hero Section -->
+  <section class="py-20 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h1 class="text-5xl md:text-6xl font-bold text-slate-900 dark:text-slate-100 mb-6">
+        About Me
+      </h1>
+      <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        I'm a passionate developer and designer who loves creating beautiful, functional, and user-friendly digital experiences.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="py-16">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-6">
+            Who I Am
+          </h2>
+          <p class="text-lg text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+            I'm a full-stack developer with a passion for creating exceptional user experiences. 
+            I believe that great software should not only work flawlessly but also delight users 
+            with intuitive design and smooth interactions.
+          </p>
+          <p class="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+            When I'm not coding, you can find me exploring new technologies, contributing to 
+            open-source projects, or sharing knowledge with the developer community.
+          </p>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-purple-600 p-1 rounded-2xl">
+          <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl">
+            <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <span class="text-4xl font-bold text-blue-600 dark:text-blue-400">VZ</span>
+            </div>
+            <h3 class="text-xl font-semibold text-center text-slate-800 dark:text-slate-200 mb-2">
+              Viktor Zoubouli
+            </h3>
+            <p class="text-center text-slate-600 dark:text-slate-400">
+              Full-Stack Developer
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Section -->
+      <div class="mb-16">
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8 text-center">
+          Skills & Technologies
+        </h2>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Frontend</h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">React</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full" style="width: 90%"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Vue.js</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Tailwind CSS</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full" style="width: 95%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Backend</h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Node.js</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-green-600 h-2 rounded-full" style="width: 88%"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Python</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-green-600 h-2 rounded-full" style="width: 82%"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">PostgreSQL</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-green-600 h-2 rounded-full" style="width: 75%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Tools</h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Git</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-purple-600 h-2 rounded-full" style="width: 92%"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Docker</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-purple-600 h-2 rounded-full" style="width: 78%"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 dark:text-slate-400">AWS</span>
+                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div class="bg-purple-600 h-2 rounded-full" style="width: 70%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Experience Section -->
+      <div class="mb-16">
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8 text-center">
+          Experience
+        </h2>
+        <div class="space-y-8">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+              <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-200">Senior Full-Stack Developer</h3>
+              <span class="text-sm text-slate-500 dark:text-slate-400">2022 - Present</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 mb-2">Tech Company Inc.</p>
+            <p class="text-slate-600 dark:text-slate-400">
+              Leading development of scalable web applications, mentoring junior developers, 
+              and implementing best practices across the engineering team.
+            </p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+              <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-200">Frontend Developer</h3>
+              <span class="text-sm text-slate-500 dark:text-slate-400">2020 - 2022</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 mb-2">Digital Agency</p>
+            <p class="text-slate-600 dark:text-slate-400">
+              Built responsive web applications and collaborated with designers to create 
+              engaging user experiences for various clients.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact CTA -->
+      <div class="text-center bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-2xl text-white">
+        <h2 class="text-3xl font-bold mb-4">Let's Work Together</h2>
+        <p class="text-xl mb-6 opacity-90">
+          I'm always interested in new opportunities and exciting projects.
+        </p>
+        <a href="mailto:hello@viktorzouboulis.com" class="inline-block px-8 py-4 bg-white text-blue-600 font-semibold rounded-full hover:bg-gray-100 transition-colors duration-200">
+          Get In Touch
+        </a>
+      </div>
+    </div>
+  </section>
 </Layout>
