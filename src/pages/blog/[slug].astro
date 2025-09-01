@@ -1,18 +1,28 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getEntryBySlug } from "astro:content";
-import { AstroError } from "astro/errors";
+import { getCollection } from "astro:content";
 
-const { slug } = Astro.params;
-const entry = await getEntryBySlug("blog", slug!);
-if (!entry) throw new AstroError(`Post not found: ${slug}`);
+// Build-time: tell Astro which /blog/<slug>/ pages to generate
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
 
-const { Content, data } = await entry.render();
+// Per-page: receive the post picked above
+const { post } = Astro.props;
+const { Content, data } = await post.render();
 ---
 <Layout title={`${data.title} — Blog`}>
   <article class="prose">
     <h1>{data.title}</h1>
-    <p class="text-sm text-neutral-600">{data.pubDate.toDateString()}</p>
+    <p class="text-sm text-neutral-600">
+      {data.pubDate.toLocaleDateString(undefined, {
+        year: "numeric", month: "short", day: "2-digit"
+      })}
+    </p>
     <Content />
   </article>
 </Layout>
