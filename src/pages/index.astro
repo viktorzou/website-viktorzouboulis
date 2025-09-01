@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import TypewriterText from "../components/TypewriterText.tsx";
 ---
 
 <Layout title="Viktor Zouboulis — Personal Website">
@@ -10,7 +11,7 @@ import Layout from "../layouts/Layout.astro";
         Viktor Zouboulis
       </h1>
       <p class="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-        Developer, designer, and digital creator building the future of the web.
+        <TypewriterText client:load />
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
         <a href="/about" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
