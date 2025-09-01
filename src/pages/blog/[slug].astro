@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-// Build-time: tell Astro which /blog/<slug>/ pages to generate
+// Tell Astro which posts to generate
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
   return posts.map((post) => ({
@@ -11,18 +11,20 @@ export async function getStaticPaths() {
   }));
 }
 
-// Per-page: receive the post picked above
 const { post } = Astro.props;
-const { Content, data } = await post.render();
+
+// post.data is populated by astro:content at build time
+const meta = post.data ?? {};
+const title = meta.title ?? post.slug;
+const pub = meta.pubDate ? new Date(meta.pubDate) : undefined;
+
+// Render MD content (Content is a component)
+const { Content } = await post.render();
 ---
-<Layout title={`${data.title} — Blog`}>
+<Layout title={`${title} — Blog`}>
   <article class="prose">
-    <h1>{data.title}</h1>
-    <p class="text-sm text-neutral-600">
-      {data.pubDate.toLocaleDateString(undefined, {
-        year: "numeric", month: "short", day: "2-digit"
-      })}
-    </p>
+    <h1>{title}</h1>
+    {pub && <p class="text-sm text-neutral-600">{pub.toDateString()}</p>}
     <Content />
   </article>
 </Layout>
