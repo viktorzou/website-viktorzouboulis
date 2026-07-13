@@ -1,0 +1,774 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { site } from "../data/site";
+
+const experiencePages = await getCollection("experience");
+const experienceFromPages = experiencePages.map((entry) => ({
+  period: entry.data.period,
+  year: entry.data.year,
+  title: entry.data.title,
+  org: entry.data.org,
+  institution: entry.data.institution ?? "",
+  detail: entry.data.summary,
+  tags: entry.data.tags,
+  href: `/experience/${entry.id}/`,
+  order: entry.data.order,
+}));
+
+const education = [
+  {
+    period: "2026 — present",
+    year: 2026,
+    title: "MSc by Research Surgical Sciences",
+    org: "University of Oxford — Nuffield Department of Surgical Sciences (NDS)",
+    institution: "Oxford",
+    detail:
+      "Affiliated with Prof. Holm Uhlig and Assoc. Prof. Dan Woodcock. College: St Hilda's College.",
+    tags: ["surgery", "Oxford", "MSc", "NDS"],
+  },
+  {
+    period: "2024 — present",
+    year: 2024,
+    title: "Visiting researcher",
+    org: "University of Oxford — Centre for Human Genetics / TGU",
+    institution: "Oxford",
+    detail:
+      "Visiting researcher at the Translational Gastroenterology Unit and Centre for Human Genetics. Affiliated with Christ Church.",
+    tags: ["medicine", "computational immunology", "Oxford"],
+  },
+  {
+    period: "2018 — present",
+    year: 2018,
+    title: "Human Medicine — elective track Digital Health",
+    org: "University of Hamburg / UHH-UKE",
+    institution: "UKE",
+    detail:
+      "Studies in human medicine with elective track Digital Health. Successfully completed first and second state exams.",
+    tags: ["medicine", "digital health", "UKE"],
+  },
+  {
+    period: "2017 — 2018",
+    year: 2017,
+    title: "Human Medicine",
+    org: "Semmelweis University, Budapest",
+    institution: "Semmelweis",
+    detail: "Medical studies (SOTE).",
+    tags: ["medicine"],
+  },
+  {
+    period: "2016 — 2017",
+    year: 2016,
+    title: "MINTgrün orientation studies — Physics",
+    org: "Technische Universität Berlin",
+    institution: "TU Berlin",
+    detail:
+      "Certificate with focus on natural sciences, informatics, and engineering.",
+    tags: ["STEM", "physics"],
+  },
+  {
+    period: "2008 — 2016",
+    year: 2016,
+    title: "Abitur (A-level), GPA 1.4",
+    org: "Gymnasium Steglitz, Berlin",
+    institution: "Berlin",
+    detail: "Focus on chemistry, mathematics, and ancient languages.",
+    tags: ["Abitur"],
+  },
+];
+
+const experienceInline = [
+  {
+    period: "2024 — present",
+    year: 2024,
+    title: "Visiting researcher — Uhlig Group & Dendrou Lab",
+    org: "University of Oxford (TGU / CHG) & UHH-UKE Center for Internal Medicine",
+    institution: "Oxford",
+    detail:
+      "Advisors: Prof. Holm Uhlig, Prof. Samuel Huber. Multilayer network / graph ML approaches to monogenic primary immunodeficiencies and the IUIS PID classification; Oxford Nanopore sequencing pipelines for the clinic; ML on longitudinal IBD biomarker trajectories. Co-advisors: Dr Calliope Dendrou (Kennedy Institute), Prof. Frank Ückert (UHH-UKE Medical Informatics).",
+    tags: ["computational immunology", "IEI", "IBD", "nanopore", "Oxford"],
+    order: 10,
+  },
+  {
+    period: "Sept. — Nov. 2024",
+    year: 2024,
+    title: "Voices of Tomorrow cohort — Venture Track",
+    org: "Global Biotech Revolution",
+    institution: "GBR",
+    detail:
+      "Selected for the GBR VoT Venture Track — a two-month accelerator on venture capital investing and venture analysis in biotech and healthcare.",
+    tags: ["biotech", "venture", "accelerator"],
+    order: 20,
+  },
+  {
+    period: "Feb. — Jul. 2024",
+    year: 2024,
+    title: "Working student — Content creation",
+    org: "Parqet, Hamburg",
+    institution: "Parqet",
+    detail:
+      "Finance startup for multi-stock portfolio visualisation and analysis. Company-insight reports, product communication, and weekly live stream “Parqet Fireside”.",
+    tags: ["startup", "finance", "content"],
+    order: 30,
+  },
+  {
+    period: "2021 — 2023",
+    year: 2021,
+    title: "Lecturer & organizer — Digital Health track",
+    org: "Universitätsklinikum Hamburg-Eppendorf (UKE)",
+    institution: "UKE",
+    detail:
+      "Led the “One Million Euro Challenge” elevator-pitch seminar (2021–2023); seminars on health apps, ideation, elevator pitch & start-up financing; excursion to Philips Health Innovation Port. Co-initiated COVID-19 vaccine Q&A with Profs. Addo, Schulze zur Wiesch, and Dr Fathi.",
+    tags: ["digital health", "teaching", "UKE"],
+    order: 50,
+  },
+  {
+    period: "2020 — 2023",
+    year: 2020,
+    title: "Surgery assistant",
+    org: "Facharztklinik Hamburg",
+    institution: "Clinical",
+    detail:
+      "Participated in ~60 operations, mostly orthopaedics and gynaecology (MIS and open).",
+    tags: ["surgery", "clinical"],
+    order: 60,
+  },
+  {
+    period: "2018 — present",
+    year: 2019,
+    title: "Clinical internships & working student roles",
+    org: "UKE, UKHD, Krankenhaus Waldfriede & practices across Germany",
+    institution: "Clinical",
+    detail:
+      "Including surgical ER (UKHD Heidelberg), paediatric surgery and nephrology (UKE), emergency / internal medicine / coloproctology (Waldfriede Berlin), and GP / paediatrics rotations. Tutor for UKE orientation week; DAGStat Conference 2022 support.",
+    tags: ["clinical", "surgery", "internship"],
+    order: 70,
+  },
+  {
+    period: "Aug. — Oct. 2019",
+    year: 2019,
+    title: "Working student — Science & Health",
+    org: "Gruner + Jahr / STERN Wissen",
+    institution: "Media",
+    detail:
+      "Data integration for the STERN article “Medizin für Menschen — Ärzte fordern Rückbesinnung auf Heilkunst statt Profit”.",
+    tags: ["media", "science communication"],
+    order: 80,
+  },
+  {
+    period: "2016 — present",
+    year: 2016,
+    title: "Student researcher — Dermatology",
+    org: "Brandenburg Medical School / Städtisches Klinikum Dessau",
+    institution: "Dermatology",
+    detail:
+      "Advisor: Prof. Christos Zouboulis. Hidradenitis suppurativa and cryosurgery. Co-authored seven publications; four poster presentations and one conference talk.",
+    tags: ["hidradenitis suppurativa", "keloids", "cryosurgery", "dermatology"],
+    order: 90,
+  },
+];
+
+const experience = [...experienceFromPages, ...experienceInline].sort(
+  (a, b) => a.order - b.order || b.year - a.year,
+);
+
+const skills = [
+  {
+    group: "Languages",
+    tags: ["languages"],
+    items: [
+      "German (native)",
+      "English (fluent)",
+      "Greek (advanced)",
+      "French (elementary)",
+      "Hungarian (elementary)",
+      "Latinum",
+      "Graecum",
+    ],
+  },
+  {
+    group: "Coding & tooling",
+    tags: ["methods", "coding"],
+    items: [
+      "Python",
+      "R",
+      "Shell",
+      "LaTeX",
+      "HTML",
+      "Java (basic)",
+      "C (basic)",
+      "Nextflow",
+      "ShinyR",
+    ],
+  },
+  {
+    group: "Research methods",
+    tags: ["computational immunology", "methods"],
+    items: [
+      "Knowledge graphs & ontologies",
+      "Graph machine learning",
+      "Longitudinal / time-series ML",
+      "Single-cell, CITE-seq, Nanopore",
+      "Scanpy / Seurat",
+      "Cell–cell interaction (CellChat, Liana)",
+      "APIs & web scraping",
+      "LLMs for clinical concept recognition",
+    ],
+  },
+  {
+    group: "Clinical & focus",
+    tags: ["IEI", "IBD", "hidradenitis suppurativa", "clinical"],
+    items: [
+      "Inborn errors of immunity",
+      "IBD & inflammatory disease",
+      "Hidradenitis suppurativa",
+      "Oxford Nanopore clinical pipelines",
+    ],
+  },
+  {
+    group: "Affiliations",
+    tags: ["Oxford", "UKE"],
+    items: [
+      "Uhlig Group, CHG Oxford",
+      "Dendrou Lab",
+      "Nuffield Department of Surgical Sciences",
+      "UKE Hamburg",
+      "St Hilda's College",
+      "Christ Church",
+    ],
+  },
+];
+
+const conferences = (await getCollection("conferences")).sort(
+  (a, b) => b.data.year - a.data.year,
+);
+const prizes = (await getCollection("prizes")).sort(
+  (a, b) => b.data.year - a.data.year,
+);
+const projects = await getCollection("projects");
+const projectById = new Map(projects.map((p) => [p.id, p]));
+const posters = await getCollection("posters");
+const posterById = new Map(posters.map((p) => [p.id, p]));
+
+const years = [
+  ...new Set([
+    ...education.map((e) => e.year),
+    ...experience.map((e) => e.year),
+    ...conferences.map((c) => c.data.year),
+    ...prizes.map((p) => p.data.year),
+  ]),
+].sort((a, b) => b - a);
+
+const tags = [
+  ...new Set([
+    ...education.flatMap((e) => e.tags),
+    ...experience.flatMap((e) => e.tags),
+    ...skills.flatMap((s) => s.tags),
+    ...conferences.flatMap((c) => c.data.tags),
+    ...prizes.flatMap((p) => p.data.tags),
+  ]),
+].sort((a, b) => a.localeCompare(b));
+
+function filterHref(opts: { tag?: string; year?: number | string }) {
+  const params = new URLSearchParams();
+  if (opts.tag) params.set("tag", opts.tag);
+  if (opts.year !== undefined && opts.year !== "") params.set("year", String(opts.year));
+  const q = params.toString();
+  return q ? `/cv/?${q}` : "/cv/";
+}
+---
+
+<Layout title={`CV — ${site.name}`}>
+  <section class="page-wrap py-16 sm:py-20" data-filter-root>
+    <p class="section-label mb-4">02 — cv</p>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <h1 class="text-3xl font-medium text-ink sm:text-4xl dark:text-paper">Curriculum Vitae</h1>
+      <div class="flex flex-wrap gap-4 text-sm">
+        <a
+          href={site.oxfordProfile}
+          class="link-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          oxford ↗
+        </a>
+        <a
+          href="https://orcid.org/0000-0001-5308-2394"
+          class="link-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          orcid ↗
+        </a>
+        <a
+          href="https://www.researchgate.net/profile/Viktor-Zouboulis"
+          class="link-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          researchgate ↗
+        </a>
+        <a
+          href="https://www.linkedin.com/in/viktorzouboulis/"
+          class="link-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          linkedin ↗
+        </a>
+      </div>
+    </div>
+    <p class="mt-4 max-w-xl text-sm leading-relaxed text-muted">
+      German-Greek medical student and computational immunology researcher at Oxford.
+      Open to collaborations and discussion.
+    </p>
+
+    <nav
+      class="mt-10 flex flex-col gap-4 border border-ink/10 p-4 text-sm dark:border-paper/10"
+      aria-label="CV navigation"
+    >
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="section-label">jump</span>
+        <a href="#education" class="link-accent">→ education</a>
+        <a href="#experience" class="link-accent">→ experience</a>
+        <a href="#conferences" class="link-accent">→ conferences</a>
+        <a href="#prizes" class="link-accent">→ prizes & scholarships</a>
+        <a href="#skills" class="link-accent">→ skills</a>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="section-label mr-1">year</span>
+        {years.map((year) => (
+          <a
+            href={filterHref({ year })}
+            class="year-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+            data-year={year}
+          >
+            {year}
+          </a>
+        ))}
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="section-label mr-1">tag</span>
+        {tags.map((tag) => (
+          <a
+            href={filterHref({ tag })}
+            class="tag-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+            data-tag={tag}
+          >
+            {tag}
+          </a>
+        ))}
+      </div>
+    </nav>
+
+    <p
+      id="filter-banner"
+      class="mt-6 hidden border border-ink/10 px-3 py-2 text-sm text-muted dark:border-paper/10"
+      hidden
+    >
+      filtered by
+      <span id="filter-banner-parts" class="text-accent"></span>
+      <a href="/cv/" class="link-accent ml-2">clear</a>
+    </p>
+
+    <div class="rule mt-12"></div>
+
+    <section id="education" class="scroll-mt-20 pt-12" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// education</p>
+        <a href="#experience" class="text-xs text-muted hover:text-accent">↓ experience</a>
+      </div>
+      <ul data-filter-list>
+        {education.map((item) => (
+          <li
+            class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10"
+            data-year={item.year}
+            data-tags={item.tags.join("|")}
+          >
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+              <div class="min-w-0 flex-1">
+                <h2 class="text-base font-medium text-ink dark:text-paper">{item.title}</h2>
+                <p class="mt-1 text-sm text-muted">{item.org}</p>
+                <p class="mt-2 text-sm leading-relaxed text-muted">{item.detail}</p>
+                <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                  {item.tags.map((tag) => (
+                    <a
+                      href={filterHref({ tag })}
+                      class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                      data-tag={tag}
+                    >
+                      {tag}
+                    </a>
+                  ))}
+                </p>
+              </div>
+              <div class="flex w-28 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                <a
+                  href={filterHref({ year: item.year })}
+                  class="year-chip hover:text-accent"
+                  data-year={item.year}
+                >
+                  {item.period}
+                </a>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+        No education entries match this filter.
+      </p>
+    </section>
+
+    <section id="experience" class="scroll-mt-20 pt-12" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// experience</p>
+        <a href="#conferences" class="text-xs text-muted hover:text-accent">↓ conferences</a>
+      </div>
+      <ul data-filter-list>
+        {experience.map((item) => (
+          <li
+            class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10"
+            data-year={item.year}
+            data-tags={item.tags.join("|")}
+          >
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+              <div class="min-w-0 flex-1">
+                <h2 class="text-base font-medium text-ink dark:text-paper">
+                  {"href" in item && item.href ? (
+                    <a href={item.href} class="hover:text-accent">
+                      {item.title}
+                    </a>
+                  ) : (
+                    item.title
+                  )}
+                </h2>
+                <p class="mt-1 text-sm text-muted">{item.org}</p>
+                <p class="mt-2 text-sm leading-relaxed text-muted">{item.detail}</p>
+                {"href" in item && item.href && (
+                  <p class="mt-3 text-sm">
+                    <a href={item.href} class="link-accent">→ role</a>
+                  </p>
+                )}
+                <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                  {item.tags.map((tag) => (
+                    <a
+                      href={filterHref({ tag })}
+                      class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                      data-tag={tag}
+                    >
+                      {tag}
+                    </a>
+                  ))}
+                </p>
+              </div>
+              <div class="flex w-28 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                <a
+                  href={filterHref({ year: item.year })}
+                  class="year-chip hover:text-accent"
+                  data-year={item.year}
+                >
+                  {item.period}
+                </a>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+        No experience entries match this filter.
+      </p>
+    </section>
+
+    <section id="conferences" class="scroll-mt-20 pt-12" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// conferences</p>
+        <a href="#prizes" class="text-xs text-muted hover:text-accent">↓ prizes</a>
+      </div>
+      {conferences.length > 0 ? (
+        <>
+          <ul data-filter-list>
+            {conferences.map((conf) => {
+              const poster = conf.data.poster ? posterById.get(conf.data.poster) : undefined;
+              return (
+              <li
+                id={`conference-${conf.id}`}
+                class="scroll-mt-20 border-b border-ink/10 py-6 first:border-t dark:border-paper/10"
+                data-year={conf.data.year}
+                data-tags={conf.data.tags.join("|")}
+              >
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      {conf.data.url ? (
+                        <a
+                          href={conf.data.url}
+                          class="hover:text-accent"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {conf.data.title}
+                        </a>
+                      ) : (
+                        conf.data.title
+                      )}
+                    </h2>
+                    <p class="mt-1 text-sm text-accent">{conf.data.role}</p>
+                    {conf.data.location && (
+                      <p class="mt-1 text-sm text-muted">{conf.data.location}</p>
+                    )}
+                    {conf.data.summary && (
+                      <p class="mt-2 text-sm leading-relaxed text-muted">{conf.data.summary}</p>
+                    )}
+                    {conf.data.tags.length > 0 && (
+                      <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                        {conf.data.tags.map((tag) => (
+                          <a
+                            href={filterHref({ tag })}
+                            class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                            data-tag={tag}
+                          >
+                            {tag}
+                          </a>
+                        ))}
+                      </p>
+                    )}
+                    {poster && (
+                      <p class="mt-3 text-sm">
+                        <a href={`/research/#poster-${poster.id}`} class="link-accent">
+                          → poster
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                  <div class="flex w-16 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                    <a
+                      href={filterHref({ year: conf.data.year })}
+                      class="year-chip hover:text-accent"
+                      data-year={conf.data.year}
+                    >
+                      {conf.data.year}
+                    </a>
+                  </div>
+                </div>
+              </li>
+              );
+            })}
+          </ul>
+          <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+            No conferences match this filter.
+          </p>
+        </>
+      ) : (
+        <p class="border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10">
+          Conference attendance will be listed here.
+        </p>
+      )}
+    </section>
+
+    <section id="prizes" class="scroll-mt-20 pt-12" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// prizes & scholarships</p>
+        <a href="#skills" class="text-xs text-muted hover:text-accent">↓ skills</a>
+      </div>
+      {prizes.length > 0 ? (
+        <>
+          <ul data-filter-list>
+            {prizes.map((prize) => {
+              const linkedProject = prize.data.project
+                ? projectById.get(prize.data.project)
+                : undefined;
+              return (
+              <li
+                id={`prize-${prize.id}`}
+                class="scroll-mt-20 border-b border-ink/10 py-6 first:border-t dark:border-paper/10"
+                data-year={prize.data.year}
+                data-tags={prize.data.tags.join("|")}
+              >
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      {prize.data.url ? (
+                        <a
+                          href={prize.data.url}
+                          class="hover:text-accent"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {prize.data.title}
+                        </a>
+                      ) : (
+                        prize.data.title
+                      )}
+                    </h2>
+                    <p class="mt-1 text-sm text-accent">{prize.data.kind}</p>
+                    {prize.data.issuer && (
+                      <p class="mt-1 text-sm text-muted">{prize.data.issuer}</p>
+                    )}
+                    {prize.data.summary && (
+                      <p class="mt-2 text-sm leading-relaxed text-muted">{prize.data.summary}</p>
+                    )}
+                    {prize.data.tags.length > 0 && (
+                      <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                        {prize.data.tags.map((tag) => (
+                          <a
+                            href={filterHref({ tag })}
+                            class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                            data-tag={tag}
+                          >
+                            {tag}
+                          </a>
+                        ))}
+                      </p>
+                    )}
+                    {linkedProject && (
+                      <p class="mt-3 text-sm">
+                        <a href={`/projects/${linkedProject.id}/`} class="link-accent">
+                          → project
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                  <div class="flex w-16 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                    <a
+                      href={filterHref({ year: prize.data.year })}
+                      class="year-chip hover:text-accent"
+                      data-year={prize.data.year}
+                    >
+                      {prize.data.year}
+                    </a>
+                  </div>
+                </div>
+              </li>
+              );
+            })}
+          </ul>
+          <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+            No prizes or scholarships match this filter.
+          </p>
+        </>
+      ) : (
+        <p class="border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10">
+          Prizes and scholarships will be listed here.
+        </p>
+      )}
+    </section>
+
+    <section id="skills" class="scroll-mt-20 pt-12" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// skills & focus</p>
+        <a href="#education" class="text-xs text-muted hover:text-accent">↑ education</a>
+      </div>
+      <ul class="space-y-0" data-filter-list>
+        {skills.map((group) => (
+          <li
+            class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10"
+            data-year=""
+            data-tags={group.tags.join("|")}
+          >
+            <h2 class="text-sm font-medium text-ink dark:text-paper">{group.group}</h2>
+            <p class="mt-2 text-sm text-muted">{group.items.join(" · ")}</p>
+            <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+              {group.tags.map((tag) => (
+                <a
+                  href={filterHref({ tag })}
+                  class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                  data-tag={tag}
+                >
+                  {tag}
+                </a>
+              ))}
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+        No skill groups match this filter.
+      </p>
+    </section>
+
+    <p class="mt-12 text-sm text-muted">
+      Questions or collaboration?
+      <a href={`mailto:${site.email}`} class="link-accent ml-1">{site.email}</a>
+    </p>
+  </section>
+
+  <script>
+    function currentFilters() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        tag: params.get("tag"),
+        year: params.get("year"),
+      };
+    }
+
+    function filterHrefClient(next) {
+      const params = new URLSearchParams();
+      if (next.tag) params.set("tag", next.tag);
+      if (next.year) params.set("year", next.year);
+      const q = params.toString();
+      return q ? `/cv/?${q}` : "/cv/";
+    }
+
+    function applyFilters() {
+      const { tag, year } = currentFilters();
+      const banner = document.getElementById("filter-banner");
+      const parts = document.getElementById("filter-banner-parts");
+      const root = document.querySelector("[data-filter-root]");
+      if (!root) return;
+
+      const active = Boolean(tag || year);
+      if (banner && parts) {
+        banner.hidden = !active;
+        banner.classList.toggle("hidden", !active);
+        const bits = [];
+        if (tag) bits.push(`tag:${tag}`);
+        if (year) bits.push(`year:${year}`);
+        parts.textContent = bits.length ? ` ${bits.join(" · ")}` : "";
+      }
+
+      document.querySelectorAll(".tag-chip").forEach((chip) => {
+        const t = chip.getAttribute("data-tag") || "";
+        const isActive = Boolean(tag) && t === tag;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute("href", filterHrefClient({ tag: t, year: year || undefined }));
+      });
+
+      document.querySelectorAll(".year-chip").forEach((chip) => {
+        const y = chip.getAttribute("data-year") || "";
+        const isActive = Boolean(year) && y === year;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute("href", filterHrefClient({ tag: tag || undefined, year: y }));
+      });
+
+      root.querySelectorAll("[data-filter-section]").forEach((section) => {
+        const items = section.querySelectorAll("[data-filter-list] > li");
+        let visible = 0;
+        items.forEach((item) => {
+          const tags = (item.getAttribute("data-tags") || "").split("|").filter(Boolean);
+          const itemYear = item.getAttribute("data-year") || "";
+          const tagOk =
+            !tag || tags.some((t) => t.toLowerCase() === String(tag).toLowerCase());
+          const yearOk = !year || (itemYear !== "" && itemYear === year);
+          const show = tagOk && yearOk;
+          item.hidden = !show;
+          item.classList.toggle("hidden", !show);
+          if (show) visible += 1;
+        });
+        const empty = section.querySelector(".filter-empty");
+        if (empty) {
+          const showEmpty = active && visible === 0;
+          empty.hidden = !showEmpty;
+          empty.classList.toggle("hidden", !showEmpty);
+        }
+      });
+    }
+
+    applyFilters();
+    window.addEventListener("popstate", applyFilters);
+  </script>
+</Layout>

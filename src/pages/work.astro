@@ -1,0 +1,315 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { site } from "../data/site";
+import { getGithubStatsByUrls, parseGithubRepo } from "../lib/github";
+
+const projects = (await getCollection("projects"))
+  .filter((p) => p.data.track === "commercial")
+  .sort((a, b) => {
+    if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+    return (b.data.year ?? -1) - (a.data.year ?? -1);
+  });
+const githubStats = await getGithubStatsByUrls(
+  projects.map((p) => p.data.link).filter((u): u is string => Boolean(u)),
+);
+const blogPosts = await getCollection("blog", ({ data }) => !data.draft);
+const blogIds = new Set(blogPosts.map((p) => p.id));
+
+const years = [
+  ...new Set(
+    projects.map((p) => p.data.year).filter((y): y is number => y != null),
+  ),
+].sort((a, b) => b - a);
+
+const tags = [...new Set(projects.flatMap((p) => p.data.tags))].sort((a, b) =>
+  a.localeCompare(b),
+);
+
+function blogHref(id: string | undefined) {
+  if (!id || !blogIds.has(id)) return null;
+  return `/blog/${id}/`;
+}
+
+function filterHref(opts: { tag?: string; year?: number | string }) {
+  const params = new URLSearchParams();
+  if (opts.tag) params.set("tag", opts.tag);
+  if (opts.year !== undefined && opts.year !== "") params.set("year", String(opts.year));
+  const q = params.toString();
+  return q ? `/work/?${q}` : "/work/";
+}
+
+function tagsAttr(list: string[]) {
+  return list.join("|");
+}
+---
+
+<Layout title={`Work — ${site.name}`}>
+  <section class="page-wrap-wide py-16 sm:py-20" id="work-page" data-filter-root>
+    <p class="section-label mb-4">06 — work</p>
+    <h1 class="text-3xl font-medium text-ink sm:text-4xl dark:text-paper">Work</h1>
+    <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted">
+      Commercial and applied projects outside the research track — products, tools, and
+      builds that are not primarily academic. Research projects live on
+      <a href="/research/#projects" class="link-accent">research</a>.
+    </p>
+
+    <nav
+      class="mt-10 flex flex-col gap-4 border border-ink/10 p-4 text-sm dark:border-paper/10"
+      aria-label="Work filters"
+    >
+      {(years.length > 0 || tags.length > 0) && (
+        <>
+          {years.length > 0 && (
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="section-label mr-1">year</span>
+              {years.map((year) => (
+                <a
+                  href={filterHref({ year })}
+                  class="year-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+                  data-year={year}
+                >
+                  {year}
+                </a>
+              ))}
+            </div>
+          )}
+          {tags.length > 0 && (
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="section-label mr-1">tag</span>
+              {tags.map((tag) => (
+                <a
+                  href={filterHref({ tag })}
+                  class="tag-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+                  data-tag={tag}
+                >
+                  {tag}
+                </a>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </nav>
+
+    <p
+      id="filter-banner"
+      class="mt-6 hidden border border-ink/10 px-3 py-2 text-sm text-muted dark:border-paper/10"
+      hidden
+    >
+      filtered by
+      <span id="filter-banner-parts" class="text-accent"></span>
+      <a href="/work/" class="link-accent ml-2">clear</a>
+    </p>
+
+    <div class="rule mt-12"></div>
+
+    <section id="projects" class="scroll-mt-20 pt-12" data-filter-section>
+      <p class="section-label mb-6">// projects</p>
+      {projects.length > 0 ? (
+        <>
+          <ul class="space-y-0" data-filter-list>
+            {projects.map((project) => {
+              const note = blogHref(project.data.blog);
+              const href = `/projects/${project.id}/`;
+              return (
+                <li
+                  id={`project-${project.id}`}
+                  class:list={[
+                    "scroll-mt-20 border-b border-ink/10 py-6 first:border-t dark:border-paper/10",
+                    project.data.pinned && "is-pinned",
+                  ]}
+                  data-tags={tagsAttr(project.data.tags)}
+                  data-year={project.data.year ?? ""}
+                >
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                    <div class="min-w-0 flex-1">
+                      {(project.data.pinned ||
+                        project.data.stealth ||
+                        project.data.status === "planned" ||
+                        project.data.review) && (
+                        <p class="section-label mb-2">
+                          {[
+                            project.data.pinned && "pinned",
+                            project.data.status === "planned" && "planned",
+                            project.data.review && "review / opinion",
+                            project.data.stealth &&
+                              (project.data.status === "planned"
+                                ? "stealth"
+                                : "building in stealth"),
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      )}
+                      <h2 class="text-base font-medium text-ink dark:text-paper">
+                        <a href={href} class="hover:text-accent">
+                          {project.data.title}
+                        </a>
+                      </h2>
+                      <p class="mt-2 text-sm leading-relaxed text-muted">
+                        {project.data.summary}
+                      </p>
+                      {project.data.tags.length > 0 && (
+                        <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                          {project.data.tags.map((tag) => (
+                            <a
+                              href={filterHref({ tag })}
+                              class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                              data-tag={tag}
+                            >
+                              {tag}
+                            </a>
+                          ))}
+                        </p>
+                      )}
+                      <p class="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                        <a href={href} class="link-accent">→ project</a>
+                        {note && (
+                          <a href={note} class="link-accent">→ read more</a>
+                        )}
+                        {project.data.link && (
+                          <a
+                            href={project.data.link}
+                            class="link-accent"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {parseGithubRepo(project.data.link) ? "github ↗" : "external ↗"}
+                          </a>
+                        )}
+                      </p>
+                    </div>
+                    <div class="flex w-20 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                      {project.data.year != null ? (
+                        <a
+                          href={filterHref({ year: project.data.year })}
+                          class="year-chip hover:text-accent"
+                          data-year={project.data.year}
+                        >
+                          {project.data.year}
+                        </a>
+                      ) : (
+                        <span class="text-xs text-muted">—</span>
+                      )}
+                      {(() => {
+                        const gh =
+                          project.data.link && githubStats.get(project.data.link);
+                        return gh ? (
+                          <a
+                            href={project.data.link}
+                            class="text-xs text-accent hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`GitHub stars & forks${gh.source === "cache" ? " (cached)" : ""}`}
+                          >
+                            ★ {gh.stars} · forks {gh.forks}
+                          </a>
+                        ) : null;
+                      })()}
+                      {project.data.status &&
+                        (!project.data.stealth ||
+                          project.data.status === "planned") && (
+                          <span class="text-accent">{project.data.status}</span>
+                        )}
+                      {project.data.stealth && (
+                        <span class="text-accent">stealth</span>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p
+            class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10"
+            hidden
+          >
+            No projects match this filter.
+          </p>
+        </>
+      ) : (
+        <p class="border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10">
+          Commercial and applied projects will be listed here.
+        </p>
+      )}
+    </section>
+  </section>
+
+  <script>
+    function currentFilters() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        tag: params.get("tag"),
+        year: params.get("year"),
+      };
+    }
+
+    function filterHrefClient(next) {
+      const params = new URLSearchParams();
+      if (next.tag) params.set("tag", next.tag);
+      if (next.year) params.set("year", next.year);
+      const q = params.toString();
+      return q ? `/work/?${q}` : "/work/";
+    }
+
+    function applyFilters() {
+      const { tag, year } = currentFilters();
+      const banner = document.getElementById("filter-banner");
+      const parts = document.getElementById("filter-banner-parts");
+      const root = document.querySelector("[data-filter-root]");
+      if (!root) return;
+
+      const active = Boolean(tag || year);
+      if (banner && parts) {
+        banner.hidden = !active;
+        banner.classList.toggle("hidden", !active);
+        const bits = [];
+        if (tag) bits.push(`tag:${tag}`);
+        if (year) bits.push(`year:${year}`);
+        parts.textContent = bits.length ? ` ${bits.join(" · ")}` : "";
+      }
+
+      document.querySelectorAll(".tag-chip").forEach((chip) => {
+        const t = chip.getAttribute("data-tag") || "";
+        const isActive = Boolean(tag) && t === tag;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute("href", filterHrefClient({ tag: t, year: year || undefined }));
+      });
+
+      document.querySelectorAll(".year-chip").forEach((chip) => {
+        const y = chip.getAttribute("data-year") || "";
+        const isActive = Boolean(year) && y === year;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute("href", filterHrefClient({ tag: tag || undefined, year: y }));
+      });
+
+      root.querySelectorAll("[data-filter-section]").forEach((section) => {
+        const items = section.querySelectorAll("[data-filter-list] > li");
+        let visible = 0;
+        items.forEach((item) => {
+          const tags = (item.getAttribute("data-tags") || "").split("|").filter(Boolean);
+          const itemYear = item.getAttribute("data-year") || "";
+          const tagOk =
+            !tag || tags.some((t) => t.toLowerCase() === String(tag).toLowerCase());
+          const yearOk = !year || itemYear === year;
+          const show = tagOk && yearOk;
+          item.hidden = !show;
+          item.classList.toggle("hidden", !show);
+          if (show) visible += 1;
+        });
+        const empty = section.querySelector(".filter-empty");
+        if (empty) {
+          const showEmpty = active && visible === 0;
+          empty.hidden = !showEmpty;
+          empty.classList.toggle("hidden", !showEmpty);
+        }
+      });
+    }
+
+    applyFilters();
+    window.addEventListener("popstate", applyFilters);
+  </script>
+</Layout>

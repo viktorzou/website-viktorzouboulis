@@ -1,0 +1,122 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import { site } from "../../data/site";
+
+export async function getStaticPaths() {
+  const companies = await getCollection("companies");
+  return companies.map((company) => ({
+    params: { slug: company.id },
+    props: { company },
+  }));
+}
+
+const { company } = Astro.props;
+const { Content } = await render(company);
+
+const people = (await getCollection("collaborators"))
+  .filter((c) => c.data.company === company.id)
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+
+const experience = (await getCollection("experience"))
+  .filter((e) => e.data.company === company.id)
+  .sort((a, b) => a.data.order - b.data.order || b.data.year - a.data.year);
+
+const projects = (await getCollection("projects"))
+  .filter((p) => p.data.companies.includes(company.id))
+  .sort((a, b) => (b.data.year ?? -1) - (a.data.year ?? -1));
+---
+
+<Layout title={`${company.data.short} — ${site.name}`}>
+  <article class="page-wrap py-16 sm:py-20">
+    <p class="section-label mb-4">
+      <a href="/collaborators/#companies" class="hover:text-accent">← collaborators</a>
+    </p>
+
+    <p class="section-label mb-2">company</p>
+    <h1 class="text-3xl font-medium leading-tight text-ink sm:text-4xl dark:text-paper">
+      {company.data.name}
+    </h1>
+
+    <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+      <span class="text-accent">{company.data.short}</span>
+      {company.data.url && (
+        <a
+          href={company.data.url}
+          class="link-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          website ↗
+        </a>
+      )}
+    </div>
+
+    {company.data.summary && (
+      <p class="mt-6 text-base leading-relaxed text-muted">{company.data.summary}</p>
+    )}
+
+    <div class="rule mt-10"></div>
+
+    <div class="prose prose-ink mt-10 max-w-none dark:prose-invert">
+      <Content />
+    </div>
+
+    {projects.length > 0 && (
+      <section id="projects" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// projects</p>
+        <ul>
+          {projects.map((project) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/projects/${project.id}/`} class="hover:text-accent">
+                  {project.data.title}
+                </a>
+              </h2>
+              <p class="mt-2 text-sm leading-relaxed text-muted">{project.data.summary}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {people.length > 0 && (
+      <section id="people" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// people</p>
+        <ul>
+          {people.map((person) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/collaborators/#${person.id}`} class="hover:text-accent">
+                  {person.data.name}
+                </a>
+              </h2>
+              <p class="mt-1 text-sm text-muted">{person.data.role}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {experience.length > 0 && (
+      <section id="experience" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// experience</p>
+        <ul>
+          {experience.map((entry) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/experience/${entry.id}/`} class="hover:text-accent">
+                  {entry.data.title}
+                </a>
+              </h2>
+              <p class="mt-2 text-sm leading-relaxed text-muted">
+                {entry.data.summary}
+              </p>
+              <p class="mt-2 text-sm text-muted">{entry.data.period}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</Layout>

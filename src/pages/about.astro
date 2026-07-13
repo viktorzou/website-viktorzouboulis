@@ -1,173 +1,108 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { site } from "../data/site";
+
+const hobbies = [
+  {
+    label: "rowing",
+    detail:
+      "I row for Christ Church College — on the Isis or in Sandford when the river cooperates.",
+  },
+  {
+    label: "cycling",
+    detail:
+      "Cycling around Oxford and further afield — a reliable way to clear the head between long days at the computer.",
+  },
+  {
+    label: "sailing",
+    detail:
+      "I compete for the University sailing team and have completed offshore races including the Fastnet. Member of Berliner Yacht-Club, Akademischer Segler-Verein Hamburg, Oxford University Yachting Club, and the Royal Ocean Racing Club (RORC). I crossed the Atlantic in 2017. I previously sailed the second German Bundesliga in J/70s, and before that H-Boats and J/24s.",
+  },
+  {
+    label: "community",
+    detail:
+      "I lead the KAS scholarship holder group in Oxford and serve on the committee of the Oxford German Society as Alumni Officer. In the Partnership team of the German British Conference (GBC), I act as lead responsible for outreach to German foundations.",
+  },
+  {
+    label: "table tennis",
+    detail:
+      "Always up for a match — collaborations and conversations are welcome over coffee, in a pub, or across a table tennis table.",
+  },
+  {
+    label: "techno",
+    detail:
+      "Retired techno DJ — played major clubs in Hamburg and a few festivals across Germany.",
+  },
+];
 ---
 
-<Layout title="About — Viktor Zouboulis">
-  <!-- Hero Section -->
-  <section class="py-20 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-      <h1 class="text-5xl md:text-6xl font-bold text-slate-900 dark:text-slate-100 mb-6">
-        About Me
-      </h1>
-      <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-        I explore patterns in human biology to deepen our understanding of the immune system.
+<Layout title={`About — ${site.name}`}>
+  <section class="page-wrap py-16 sm:py-20">
+    <p class="section-label mb-4">03 — about</p>
+    <h1 class="text-3xl font-medium text-ink sm:text-4xl dark:text-paper">About</h1>
+
+    <div class="mt-10 space-y-6 text-base leading-relaxed text-muted">
+      <p>
+        I'm a German-Greek medical student and researcher based at the
+        <a
+          href={site.oxfordProfile}
+          class="link-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Centre for Human Genetics</a>, University of Oxford, working with the Uhlig and
+        Dendrou labs. I'm also affiliated with the University Medical Center
+        Hamburg-Eppendorf (UKE), and previously trained at Semmelweis University and
+        TU Berlin.
+      </p>
+      <p>
+        My work focuses on computational immunology — using knowledge graphs, machine
+        learning, and patient data to find structure in complex biomedical datasets and
+        improve the understanding and classification of inborn errors of immunity and
+        inflammatory diseases such as IBD. I care about translating those insights into
+        clinically useful applications.
+      </p>
+      <p>
+        Outside the lab, rowing for Christ Church, cycling, sailing, community work, the
+        odd game of table tennis, and a former life as a techno DJ keep things balanced.
+        Feel free to reach out.
       </p>
     </div>
-  </section>
 
-  <!-- Main Content -->
-  <section class="py-16">
-    <div class="max-w-4xl mx-auto px-4">
-      <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
-        <div>
-          <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-6">
-            Who I Am
-          </h2>
-          <p class="text-lg text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
-            I explore patterns in human biology to deepen our understanding of the immune system.
-          </p>
-          <p class="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-            When I'm not coding, you can find me exploring new technologies, contributing to 
-            open-source projects, or sharing knowledge with the developer community.
-          </p>
-        </div>
-        <div class="bg-gradient-to-br from-blue-500 to-purple-600 p-1 rounded-2xl">
-          <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl">
-            <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full mx-auto mb-6 flex items-center justify-center">
-              <span class="text-4xl font-bold text-blue-600 dark:text-blue-400">VZ</span>
-            </div>
-            <h3 class="text-xl font-semibold text-center text-slate-800 dark:text-slate-200 mb-2">
-              Viktor Zouboulis
-            </h3>
-            <p class="text-center text-slate-600 dark:text-slate-400">
-              Aspiring Doctor & Computational Immunologist
-            </p>
-          </div>
-        </div>
-      </div>
+    <div class="rule mt-12"></div>
 
-      <!-- Skills Section -->
-      <div class="mb-16">
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8 text-center">
-          Skills & Technologies
-        </h2>
-        <div class="grid md:grid-cols-3 gap-6">
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Frontend</h3>
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">React</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-blue-600 h-2 rounded-full" style="width: 90%"></div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Vue.js</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Tailwind CSS</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-blue-600 h-2 rounded-full" style="width: 95%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <section class="pt-12">
+      <p class="section-label mb-6">// outside the lab</p>
+      <ul>
+        {hobbies.map((hobby) => (
+          <li class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10">
+            <h2 class="text-sm font-medium text-accent">{hobby.label}</h2>
+            <p class="mt-2 text-sm leading-relaxed text-muted">{hobby.detail}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
 
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Backend</h3>
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Node.js</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-green-600 h-2 rounded-full" style="width: 88%"></div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Python</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-green-600 h-2 rounded-full" style="width: 82%"></div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">PostgreSQL</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-green-600 h-2 rounded-full" style="width: 75%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Tools</h3>
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Git</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-purple-600 h-2 rounded-full" style="width: 92%"></div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">Docker</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-purple-600 h-2 rounded-full" style="width: 78%"></div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-600 dark:text-slate-400">AWS</span>
-                <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                  <div class="bg-purple-600 h-2 rounded-full" style="width: 70%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Experience Section -->
-      <div class="mb-16">
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8 text-center">
-          Experience
-        </h2>
-        <div class="space-y-8">
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-              <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-200">Senior Full-Stack Developer</h3>
-              <span class="text-sm text-slate-500 dark:text-slate-400">2022 - Present</span>
-            </div>
-            <p class="text-slate-600 dark:text-slate-400 mb-2">Tech Company Inc.</p>
-            <p class="text-slate-600 dark:text-slate-400">
-              Leading development of scalable web applications, mentoring junior developers, 
-              and implementing best practices across the engineering team.
-            </p>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-              <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-200">Frontend Developer</h3>
-              <span class="text-sm text-slate-500 dark:text-slate-400">2020 - 2022</span>
-            </div>
-            <p class="text-slate-600 dark:text-slate-400 mb-2">Digital Agency</p>
-            <p class="text-slate-600 dark:text-slate-400">
-              Built responsive web applications and collaborated with designers to create 
-              engaging user experiences for various clients.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact CTA -->
-      <div class="text-center bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-2xl text-white">
-        <h2 class="text-3xl font-bold mb-4">Let's Work Together</h2>
-        <p class="text-xl mb-6 opacity-90">
-          I'm always interested in new opportunities and exciting projects.
-        </p>
-        <a href="mailto:hello@viktorzouboulis.com" class="inline-block px-8 py-4 bg-white text-blue-600 font-semibold rounded-full hover:bg-gray-100 transition-colors duration-200">
-          Get In Touch
-        </a>
-      </div>
-    </div>
+    <section class="pt-12">
+      <p class="section-label mb-6">// connect</p>
+      <ul class="border-t border-ink/10 dark:border-paper/10">
+        <li class="border-b border-ink/10 py-4 dark:border-paper/10">
+          <span class="text-sm text-muted">email</span>
+          <a href={`mailto:${site.email}`} class="link-accent ml-4 text-sm">{site.email}</a>
+        </li>
+        {site.socials.map((social) => (
+          <li class="border-b border-ink/10 py-4 dark:border-paper/10">
+            <span class="text-sm text-muted">{social.label}</span>
+            <a
+              href={social.href}
+              class="link-accent ml-4 text-sm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {social.href.replace(/^https?:\/\/(www\.)?/, "")}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
   </section>
 </Layout>

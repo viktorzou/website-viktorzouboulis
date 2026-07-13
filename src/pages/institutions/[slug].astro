@@ -1,0 +1,235 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import { site } from "../../data/site";
+import { formatAuthorsHtml } from "../../lib/authors";
+import { extractDoi, getPaperMetricsByDois } from "../../lib/metrics";
+import { labLabel } from "../../lib/orgs";
+
+export async function getStaticPaths() {
+  const institutions = await getCollection("institutions");
+  return institutions.map((institution) => ({
+    params: { slug: institution.id },
+    props: { institution },
+  }));
+}
+
+const { institution } = Astro.props;
+const { Content } = await render(institution);
+
+const allDepartments = await getCollection("departments");
+const departments = allDepartments
+  .filter((d) => d.data.institution === institution.id)
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+
+const allLabs = await getCollection("labs");
+const departmentIds = new Set(departments.map((d) => d.id));
+const labs = allLabs
+  .filter((l) => departmentIds.has(l.data.department))
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+
+const people = (await getCollection("collaborators"))
+  .filter((c) => c.data.institution === institution.id)
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+
+const papers = (await getCollection("papers"))
+  .filter((p) => p.data.institutions.includes(institution.id))
+  .sort((a, b) => b.data.year - a.data.year);
+
+const interesting = (await getCollection("interestingPapers"))
+  .filter((p) => p.data.institutions.includes(institution.id))
+  .sort((a, b) => b.data.year - a.data.year);
+
+const paperMetrics = await getPaperMetricsByDois(
+  [...papers, ...interesting]
+    .map((p) => extractDoi(p.data.url))
+    .filter((d): d is string => Boolean(d)),
+);
+
+const collaborators = await getCollection("collaborators");
+function highlightAuthors(authors: string) {
+  return formatAuthorsHtml(authors, collaborators);
+}
+---
+
+<Layout title={`${institution.data.short} — ${site.name}`}>
+  <article class="page-wrap py-16 sm:py-20">
+    <p class="section-label mb-4">
+      <a href="/collaborators/#institutions" class="hover:text-accent">← collaborators</a>
+    </p>
+
+    <p class="section-label mb-2">institution</p>
+    <h1 class="text-3xl font-medium leading-tight text-ink sm:text-4xl dark:text-paper">
+      {institution.data.name}
+    </h1>
+
+    <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+      <span class="text-accent">{institution.data.short}</span>
+      {institution.data.url && (
+        <a
+          href={institution.data.url}
+          class="link-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          website ↗
+        </a>
+      )}
+    </div>
+
+    {institution.data.summary && (
+      <p class="mt-6 text-base leading-relaxed text-muted">{institution.data.summary}</p>
+    )}
+
+    <div class="rule mt-10"></div>
+
+    <div class="prose prose-ink mt-10 max-w-none dark:prose-invert">
+      <Content />
+    </div>
+
+    {departments.length > 0 && (
+      <section id="departments" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// departments</p>
+        <ul>
+          {departments.map((department) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/departments/${department.id}/`} class="hover:text-accent">
+                  {department.data.name}
+                </a>
+              </h2>
+              {department.data.summary && (
+                <p class="mt-2 text-sm leading-relaxed text-muted">{department.data.summary}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {labs.length > 0 && (
+      <section id="labs" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// labs</p>
+        <ul>
+          {labs.map((lab) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/labs/${lab.id}/`} class="hover:text-accent">
+                  {lab.data.name}
+                </a>
+              </h2>
+              {lab.data.summary && (
+                <p class="mt-2 text-sm leading-relaxed text-muted">{lab.data.summary}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {people.length > 0 && (
+      <section id="people" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// people</p>
+        <ul>
+          {people.map((person) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/collaborators/#${person.id}`} class="hover:text-accent">
+                  {person.data.name}
+                </a>
+              </h2>
+              <p class="mt-1 text-sm text-muted">
+                {labLabel(person.data.lab, allLabs)} · {person.data.role}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {(papers.length > 0 || interesting.length > 0) && (
+      <section id="papers" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// papers</p>
+        <ul>
+          {papers.map((paper) => {
+            const doi = extractDoi(paper.data.url);
+            const paperStat = doi ? paperMetrics.get(doi) : undefined;
+            return (
+              <li class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      {paper.data.url ? (
+                        <a
+                          href={paper.data.url}
+                          class="hover:text-accent"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {paper.data.title}
+                        </a>
+                      ) : (
+                        paper.data.title
+                      )}
+                    </h2>
+                    <p
+                      class="mt-1 text-sm leading-relaxed text-muted"
+                      set:html={highlightAuthors(paper.data.authors)}
+                    />
+                    <p class="mt-1 text-sm text-muted italic">{paper.data.venue}</p>
+                  </div>
+                  <div class="flex w-20 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                    <span>{paper.data.year}</span>
+                    {paperStat && (
+                      <span class="text-xs text-accent">cited {paperStat.citations}</span>
+                    )}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+          {interesting.map((paper) => {
+            const doi = extractDoi(paper.data.url);
+            const paperStat = doi ? paperMetrics.get(doi) : undefined;
+            return (
+              <li class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <p class="section-label mb-2">interesting</p>
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      {paper.data.url ? (
+                        <a
+                          href={paper.data.url}
+                          class="hover:text-accent"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {paper.data.title}
+                        </a>
+                      ) : (
+                        paper.data.title
+                      )}
+                    </h2>
+                    <p
+                      class="mt-1 text-sm leading-relaxed text-muted"
+                      set:html={highlightAuthors(paper.data.authors)}
+                    />
+                    {paper.data.venue && (
+                      <p class="mt-1 text-sm text-muted italic">{paper.data.venue}</p>
+                    )}
+                  </div>
+                  <div class="flex w-20 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                    <span>{paper.data.year}</span>
+                    {paperStat && (
+                      <span class="text-xs text-accent">cited {paperStat.citations}</span>
+                    )}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    )}
+  </article>
+</Layout>

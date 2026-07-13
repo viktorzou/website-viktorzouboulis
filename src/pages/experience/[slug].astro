@@ -1,0 +1,286 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import { site } from "../../data/site";
+import { formatAuthorsHtml } from "../../lib/authors";
+import { extractDoi, getPaperMetricsByDois } from "../../lib/metrics";
+import { departmentLabel, institutionLabel, labLabel } from "../../lib/orgs";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("experience");
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const allPapers = await getCollection("papers");
+const paperById = new Map(allPapers.map((p) => [p.id, p]));
+const relatedPapers = entry.data.papers
+  .map((id) => paperById.get(id))
+  .filter((p): p is (typeof allPapers)[number] => Boolean(p));
+
+const allPosters = await getCollection("posters");
+const posterById = new Map(allPosters.map((p) => [p.id, p]));
+const relatedPosters = entry.data.posters
+  .map((id) => posterById.get(id))
+  .filter((p): p is (typeof allPosters)[number] => Boolean(p));
+
+const collaborators = await getCollection("collaborators");
+const institutions = await getCollection("institutions");
+const departments = await getCollection("departments");
+const labs = await getCollection("labs");
+const collaboratorById = new Map(collaborators.map((c) => [c.id, c]));
+const relatedPeople = entry.data.people
+  .map((id) => collaboratorById.get(id))
+  .filter((p): p is (typeof collaborators)[number] => Boolean(p));
+
+const allProjects = await getCollection("projects");
+const projectById = new Map(allProjects.map((p) => [p.id, p]));
+const relatedProjects = entry.data.projects
+  .map((id) => projectById.get(id))
+  .filter((p): p is (typeof allProjects)[number] => Boolean(p));
+
+const paperMetrics = await getPaperMetricsByDois(
+  relatedPapers
+    .map((p) => extractDoi(p.data.url))
+    .filter((d): d is string => Boolean(d)),
+);
+
+function highlightAuthors(authors: string) {
+  return formatAuthorsHtml(authors, collaborators);
+}
+---
+
+<Layout title={`${entry.data.title} — ${site.name}`}>
+  <article class="page-wrap py-16 sm:py-20">
+    <p class="section-label mb-4">
+      <a href="/cv/#experience" class="hover:text-accent">← experience</a>
+    </p>
+
+    <h1 class="text-3xl font-medium leading-tight text-ink sm:text-4xl dark:text-paper">
+      {entry.data.title}
+    </h1>
+
+    <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+      <span>{entry.data.period}</span>
+      {entry.data.institution && (
+        <span class="text-accent">{entry.data.institution}</span>
+      )}
+    </div>
+
+    <p class="mt-6 text-base leading-relaxed text-muted">{entry.data.org}</p>
+    <p class="mt-4 text-base leading-relaxed text-muted">{entry.data.summary}</p>
+
+    {entry.data.tags.length > 0 && (
+      <p class="mt-4 flex flex-wrap gap-2 text-xs text-muted">
+        {entry.data.tags.map((tag) => (
+          <a
+            href={`/cv/?tag=${encodeURIComponent(tag)}#experience`}
+            class="border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+          >
+            {tag}
+          </a>
+        ))}
+      </p>
+    )}
+
+    <div class="rule mt-10"></div>
+
+    <div class="prose prose-ink mt-10 max-w-none dark:prose-invert">
+      <Content />
+    </div>
+
+    {relatedPeople.length > 0 && (
+      <section id="people" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// people</p>
+        <ul>
+          {relatedPeople.map((person) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/collaborators/#${person.id}`} class="hover:text-accent">
+                  {person.data.name}
+                </a>
+              </h2>
+              <p class="mt-1 text-sm text-accent">
+                {person.data.kind === "supervisor"
+                  ? "supervisor · "
+                  : person.data.kind === "co-supervisor"
+                    ? "co-supervisor · "
+                    : person.data.kind === "former-supervisor"
+                      ? "former supervisor · "
+                      : person.data.kind === "student"
+                        ? "student · "
+                        : ""}
+                {person.data.role}
+              </p>
+              <p class="mt-1 text-sm text-muted">
+                {person.data.institution && (
+                  <a
+                    href={`/institutions/${person.data.institution}/`}
+                    class="hover:text-accent"
+                  >
+                    {institutionLabel(person.data.institution, institutions)}
+                  </a>
+                )}
+                {person.data.institution && person.data.department && (
+                  <span class="mx-2 text-muted/40">·</span>
+                )}
+                {person.data.department && (
+                  <a
+                    href={`/departments/${person.data.department}/`}
+                    class="hover:text-accent"
+                  >
+                    {departmentLabel(person.data.department, departments)}
+                  </a>
+                )}
+                {(person.data.institution || person.data.department) &&
+                  person.data.lab && <span class="mx-2 text-muted/40">·</span>}
+                {person.data.lab && (
+                  <a href={`/labs/${person.data.lab}/`} class="hover:text-accent">
+                    {labLabel(person.data.lab, labs)}
+                  </a>
+                )}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {relatedProjects.length > 0 && (
+      <section id="projects" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// related projects</p>
+        <ul>
+          {relatedProjects.map((project) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/projects/${project.id}/`} class="hover:text-accent">
+                  {project.data.title}
+                </a>
+              </h2>
+              <p class="mt-2 text-sm leading-relaxed text-muted">
+                {project.data.summary}
+              </p>
+              {project.data.year != null && (
+                <p class="mt-2 text-sm text-muted">{project.data.year}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {relatedPosters.length > 0 && (
+      <section id="posters" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// posters</p>
+        <ul>
+          {relatedPosters.map((poster) => (
+            <li class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                <div class="min-w-0 flex-1">
+                  <h2 class="text-base font-medium text-ink dark:text-paper">
+                    <a href={`/research/#poster-${poster.id}`} class="hover:text-accent">
+                      {poster.data.title}
+                    </a>
+                  </h2>
+                  {poster.data.authors && (
+                    <p
+                      class="mt-1 text-sm leading-relaxed text-muted"
+                      set:html={highlightAuthors(poster.data.authors)}
+                    />
+                  )}
+                  {poster.data.venue && (
+                    <p class="mt-1 text-sm text-muted italic">{poster.data.venue}</p>
+                  )}
+                  {poster.data.summary && (
+                    <p class="mt-3 text-sm leading-relaxed text-muted">
+                      {poster.data.summary}
+                    </p>
+                  )}
+                  {poster.data.pdf && (
+                    <p class="mt-3 text-sm">
+                      <a
+                        href={poster.data.pdf}
+                        class="link-accent"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        pdf
+                      </a>
+                    </p>
+                  )}
+                </div>
+                <div class="flex w-16 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                  <span>{poster.data.year}</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {relatedPapers.length > 0 && (
+      <section id="papers" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// papers</p>
+        <ul>
+          {relatedPapers.map((paper) => {
+            const doi = extractDoi(paper.data.url);
+            const paperStat = doi ? paperMetrics.get(doi) : undefined;
+            return (
+              <li class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      {paper.data.url ? (
+                        <a
+                          href={paper.data.url}
+                          class="hover:text-accent"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {paper.data.title}
+                        </a>
+                      ) : (
+                        paper.data.title
+                      )}
+                    </h2>
+                    <p
+                      class="mt-1 text-sm leading-relaxed text-muted"
+                      set:html={highlightAuthors(paper.data.authors)}
+                    />
+                    {paper.data.venue && (
+                      <p class="mt-1 text-sm text-muted italic">{paper.data.venue}</p>
+                    )}
+                  </div>
+                  <div class="flex w-20 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                    <span>{paper.data.year}</span>
+                    {paperStat && (
+                      paperStat.openAlexId ? (
+                        <a
+                          href={paperStat.openAlexId}
+                          class="text-xs text-accent hover:underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={`OpenAlex citations${paperStat.source === "cache" ? " (cached)" : ""}`}
+                        >
+                          cited {paperStat.citations}
+                        </a>
+                      ) : (
+                        <span class="text-xs text-accent">cited {paperStat.citations}</span>
+                      )
+                    )}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    )}
+  </article>
+</Layout>

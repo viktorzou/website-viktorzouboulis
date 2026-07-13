@@ -1,0 +1,95 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { site } from "../data/site";
+import { getAllTags, tagLandingHref } from "../lib/tags";
+
+const tags = await getAllTags();
+const counts = tags.map((t) => t.count);
+const min = Math.min(...counts, 1);
+const max = Math.max(...counts, 1);
+
+function weight(count: number) {
+  if (max === min) return 0.45;
+  return (count - min) / (max - min);
+}
+
+function fontSize(count: number) {
+  const w = weight(count);
+  // rem: 0.8 → 2.4
+  return (0.8 + w * 1.6).toFixed(2);
+}
+
+function opacity(count: number) {
+  const w = weight(count);
+  return (0.55 + w * 0.45).toFixed(2);
+}
+---
+
+<Layout title={`Tags — ${site.name}`}>
+  <section class="page-wrap-wide py-16 sm:py-20">
+    <p class="section-label mb-4">07 — tags</p>
+    <h1 class="text-3xl font-medium text-ink sm:text-4xl dark:text-paper">Tag map</h1>
+    <p class="mt-4 max-w-2xl text-base leading-relaxed text-muted">
+      Word map of every tag across papers, projects, posters, people, conferences, and
+      prizes. Size scales with how often a tag appears. Click a tag to open its primary
+      filter view.
+    </p>
+
+    <div class="rule mt-10"></div>
+
+    <p class="section-label mt-10 mb-6">// word map · {tags.length} tags</p>
+
+    {tags.length > 0 ? (
+      <div
+        class="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-3 border border-ink/10 px-4 py-10 text-center dark:border-paper/10 sm:px-8 sm:py-14"
+        aria-label="Tag word map"
+      >
+        {tags.map((entry) => (
+          <a
+            href={tagLandingHref(entry)}
+            class="font-medium text-ink transition-colors hover:text-accent dark:text-paper"
+            style={`font-size: ${fontSize(entry.count)}rem; opacity: ${opacity(entry.count)};`}
+            title={`${entry.count}× · ${entry.sources.map((s) => s.kind).join(", ")}`}
+          >
+            {entry.tag}
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="text-sm text-muted">No tags yet.</p>
+    )}
+
+    <div class="rule mt-16"></div>
+
+    <p class="section-label mt-10 mb-6">// by frequency</p>
+    <ul>
+      {tags.map((entry) => (
+        <li class="border-b border-ink/10 py-4 first:border-t dark:border-paper/10">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
+            <div class="min-w-0 flex-1">
+              <a
+                href={tagLandingHref(entry)}
+                class="text-base font-medium text-ink hover:text-accent dark:text-paper"
+              >
+                {entry.tag}
+              </a>
+              <p class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+                {entry.sources.slice(0, 8).map((source) => (
+                  <a href={source.href} class="hover:text-accent">
+                    {source.kind}: {source.title.length > 42
+                      ? `${source.title.slice(0, 42)}…`
+                      : source.title}
+                  </a>
+                ))}
+                {entry.sources.length > 8 && (
+                  <span>+{entry.sources.length - 8} more</span>
+                )}
+              </p>
+            </div>
+            <span class="shrink-0 text-sm text-accent">{entry.count}×</span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Layout>

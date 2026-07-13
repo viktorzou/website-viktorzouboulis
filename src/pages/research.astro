@@ -1,0 +1,807 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { site } from "../data/site";
+import { formatAuthorsHtml, isOwnFirstAuthor } from "../lib/authors";
+import { getGithubStatsByUrls, parseGithubRepo } from "../lib/github";
+import { extractDoi, getPaperMetricsByDois, getPubMetrics } from "../lib/metrics";
+import { departmentLabel, institutionLabel, labLabel } from "../lib/orgs";
+
+const papers = (await getCollection("papers")).sort((a, b) => {
+  if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+  return b.data.year - a.data.year;
+});
+const firstAuthorCount = papers.filter((p) =>
+  isOwnFirstAuthor(p.data.authors),
+).length;
+const metrics = await getPubMetrics();
+const projects = (await getCollection("projects"))
+  .filter((p) => p.data.track !== "commercial")
+  .sort((a, b) => {
+  if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+  return (b.data.year ?? -1) - (a.data.year ?? -1);
+});
+const githubStats = await getGithubStatsByUrls(
+  projects.map((p) => p.data.link).filter((u): u is string => Boolean(u)),
+);
+const posters = (await getCollection("posters")).sort((a, b) => {
+  if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+  return b.data.year - a.data.year;
+});
+const interestingPapers = (await getCollection("interestingPapers")).sort(
+  (a, b) => b.data.year - a.data.year,
+);
+const paperMetrics = await getPaperMetricsByDois(
+  [
+    ...papers.map((p) => extractDoi(p.data.url)),
+    ...interestingPapers.map((p) => extractDoi(p.data.url)),
+  ].filter((d): d is string => Boolean(d)),
+);
+const collaborators = await getCollection("collaborators");
+const institutions = await getCollection("institutions");
+const departments = await getCollection("departments");
+const labs = await getCollection("labs");
+const conferences = await getCollection("conferences");
+const conferenceById = new Map(conferences.map((c) => [c.id, c]));
+
+const blogPosts = await getCollection("blog", ({ data }) => !data.draft);
+const blogIds = new Set(blogPosts.map((p) => p.id));
+
+const years = [
+  ...new Set([
+    ...papers.map((p) => p.data.year),
+    ...projects.map((p) => p.data.year).filter((y): y is number => y != null),
+    ...posters.map((p) => p.data.year),
+    ...interestingPapers.map((p) => p.data.year),
+  ]),
+].sort((a, b) => b - a);
+function blogHref(id: string | undefined) {
+  if (!id || !blogIds.has(id)) return null;
+  return `/blog/${id}/`;
+}
+
+function highlightAuthors(authors: string) {
+  return formatAuthorsHtml(authors, collaborators);
+}
+
+function filterHref(opts: {
+  tag?: string;
+  year?: number | string;
+  sort?: string;
+}) {
+  const params = new URLSearchParams();
+  if (opts.tag) params.set("tag", opts.tag);
+  if (opts.year !== undefined && opts.year !== "") params.set("year", String(opts.year));
+  if (opts.sort === "year" || opts.sort === "cited") params.set("sort", opts.sort);
+  const q = params.toString();
+  return q ? `/research/?${q}` : "/research/";
+}
+
+function tagsAttr(tags: string[]) {
+  return tags.join("|");
+}
+---
+
+<Layout title={`Research — ${site.name}`}>
+  <section class="page-wrap-wide py-16 sm:py-20" id="research-page" data-filter-root>
+    <p class="section-label mb-4">01 — research</p>
+    <h1 class="text-3xl font-medium text-ink sm:text-4xl dark:text-paper">Research</h1>
+    <div class="mt-6 max-w-2xl space-y-4 text-base leading-relaxed text-muted">
+      <p>
+        I work in computational immunology with the Uhlig and Dendrou labs at the Centre
+        for Human Genetics, University of Oxford. My focus is finding meaningful structure
+        in large-scale biomedical data — with knowledge graphs, machine learning, and
+        patient data — to improve understanding and classification of inborn errors of
+        immunity and inflammatory diseases such as IBD.
+      </p>
+      <p>
+        In parallel, I develop nanoCITE — Nanopore sequencing pipelines and computational
+        tools designed to bridge research and clinical practice, so data-driven insights
+        can become actionable in patient care. Earlier work includes hidradenitis
+        suppurativa, keloid cryosurgery, and macrophage biology.
+      </p>
+    </div>
+
+    <nav
+      class="mt-10 flex flex-col gap-4 border border-ink/10 p-4 text-sm dark:border-paper/10"
+      aria-label="Research navigation"
+    >
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="section-label">jump</span>
+        <a href="#papers" class="link-accent">→ papers</a>
+        <a href="#posters" class="link-accent">→ posters</a>
+        <a href="#projects" class="link-accent">→ projects</a>
+        <a href="#interesting" class="link-accent">→ interesting papers</a>
+        <span class="text-muted/40" aria-hidden="true">·</span>
+        <a
+          href="https://orcid.org/0000-0001-5308-2394"
+          class="text-muted hover:text-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          orcid ↗
+        </a>
+        <a
+          href="https://www.researchgate.net/profile/Viktor-Zouboulis"
+          class="text-muted hover:text-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          researchgate ↗
+        </a>
+        <a
+          href={site.oxfordProfile}
+          class="text-muted hover:text-accent"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          oxford ↗
+        </a>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="section-label mr-1">year</span>
+        {years.map((year) => (
+          <a
+            href={filterHref({ year })}
+            class="year-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+            data-year={year}
+          >
+            {year}
+          </a>
+        ))}
+      </div>
+    </nav>
+
+    <div class="rule mt-12"></div>
+
+    <section id="papers" class="scroll-mt-20 pt-12" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">
+          // papers · {papers.length} · first author {firstAuthorCount} ·
+          citations {metrics.citations} · h-index {metrics.hIndex}
+        </p>
+        <div class="flex flex-wrap items-center gap-3 text-xs text-muted">
+          <a
+            href={metrics.openAlexId}
+            class="hover:text-accent"
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`OpenAlex · updated ${metrics.updated}${metrics.source === "cache" ? " (cached)" : ""}`}
+          >
+            openalex ↗
+          </a>
+          <a href="#posters" class="hover:text-accent">↓ posters</a>
+        </div>
+      </div>
+      <div class="mb-4 flex flex-wrap items-center gap-2 text-sm" aria-label="Sort papers">
+        <span class="section-label mr-1">sort</span>
+        <a
+          href={filterHref({ sort: "year" }) + "#papers"}
+          class="sort-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+          data-sort="year"
+        >
+          year
+        </a>
+        <a
+          href={filterHref({ sort: "cited" }) + "#papers"}
+          class="sort-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+          data-sort="cited"
+        >
+          most cited
+        </a>
+      </div>
+      {papers.length > 0 ? (
+        <>
+          <ul class="space-y-0" data-filter-list data-paper-list>
+            {papers.map((paper) => {
+              const note = blogHref(paper.data.blog);
+              const doi = extractDoi(paper.data.url);
+              const paperStat = doi ? paperMetrics.get(doi) : undefined;
+              return (
+                <li
+                  class:list={[
+                    "border-b border-ink/10 py-6 first:border-t dark:border-paper/10",
+                    paper.data.pinned && "is-pinned",
+                  ]}
+                  data-tags={tagsAttr(paper.data.tags)}
+                  data-year={paper.data.year}
+                  data-citations={paperStat?.citations ?? 0}
+                  data-pinned={paper.data.pinned ? "1" : "0"}
+                >
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                    <div class="min-w-0 flex-1">
+                      {paper.data.pinned && (
+                        <p class="section-label mb-2">pinned</p>
+                      )}
+                      <h2 class="text-base font-medium text-ink dark:text-paper">
+                        {paper.data.url ? (
+                          <a href={paper.data.url} class="hover:text-accent" target="_blank" rel="noopener noreferrer">
+                            {paper.data.title}
+                          </a>
+                        ) : (
+                          paper.data.title
+                        )}
+                      </h2>
+                      <p
+                        class="mt-1 text-sm leading-relaxed text-muted"
+                        set:html={highlightAuthors(paper.data.authors)}
+                      />
+                      <p class="mt-1 text-sm text-muted italic">{paper.data.venue}</p>
+                      {(paper.data.labs.length > 0 ||
+                        paper.data.departments.length > 0 ||
+                        paper.data.institutions.length > 0) && (
+                        <p class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
+                          {paper.data.institutions.map((id) => (
+                            <a href={`/institutions/${id}/`} class="hover:text-accent">
+                              {institutionLabel(id, institutions)}
+                            </a>
+                          ))}
+                          {paper.data.departments.map((id) => (
+                            <a href={`/departments/${id}/`} class="hover:text-accent">
+                              {departmentLabel(id, departments)}
+                            </a>
+                          ))}
+                          {paper.data.labs.map((id) => (
+                            <a href={`/labs/${id}/`} class="hover:text-accent">
+                              {labLabel(id, labs)}
+                            </a>
+                          ))}
+                        </p>
+                      )}
+                      {paper.data.abstract && (
+                        <p class="mt-3 text-sm leading-relaxed text-muted/90">{paper.data.abstract}</p>
+                      )}
+                      {paper.data.tags.length > 0 && (
+                        <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                          {paper.data.tags.map((tag) => (
+                            <a
+                              href={filterHref({ tag })}
+                              class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                              data-tag={tag}
+                            >
+                              {tag}
+                            </a>
+                          ))}
+                        </p>
+                      )}
+                      {note && (
+                        <p class="mt-3 text-sm">
+                          <a href={note} class="link-accent">→ read more</a>
+                        </p>
+                      )}
+                    </div>
+                    <div class="flex w-20 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                      <a
+                        href={filterHref({ year: paper.data.year })}
+                        class="year-chip hover:text-accent"
+                        data-year={paper.data.year}
+                      >
+                        {paper.data.year}
+                      </a>
+                      {paperStat && (
+                        paperStat.openAlexId ? (
+                          <a
+                            href={paperStat.openAlexId}
+                            class="text-xs text-accent hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`OpenAlex citations${paperStat.source === "cache" ? " (cached)" : ""}`}
+                          >
+                            cited {paperStat.citations}
+                          </a>
+                        ) : (
+                          <span class="text-xs text-accent">cited {paperStat.citations}</span>
+                        )
+                      )}
+                      {paper.data.pdf && (
+                        <a href={paper.data.pdf} class="link-accent" target="_blank" rel="noopener noreferrer">
+                          pdf
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+            No papers match this filter.
+          </p>
+        </>
+      ) : (
+        <p class="border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10">
+          Publications will be listed here as they appear. See also
+          <a
+            href="https://orcid.org/0000-0001-5308-2394"
+            class="link-accent"
+            target="_blank"
+            rel="noopener noreferrer"
+          >ORCID</a>.
+        </p>
+      )}
+    </section>
+
+    <section id="posters" class="scroll-mt-20 pt-16" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// posters</p>
+        <a href="#projects" class="text-xs text-muted hover:text-accent">↓ projects</a>
+      </div>
+      {posters.length > 0 ? (
+        <>
+          <ul class="space-y-0" data-filter-list>
+            {posters.map((poster) => {
+              const note = blogHref(poster.data.blog);
+              const conference = poster.data.conference
+                ? conferenceById.get(poster.data.conference)
+                : undefined;
+              return (
+                <li
+                  id={`poster-${poster.id}`}
+                  class:list={[
+                    "scroll-mt-20 border-b border-ink/10 py-6 first:border-t dark:border-paper/10",
+                    poster.data.pinned && "is-pinned",
+                  ]}
+                  data-tags={tagsAttr(poster.data.tags)}
+                  data-year={poster.data.year}
+                >
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                    <div class="min-w-0 flex-1">
+                      {poster.data.pinned && (
+                        <p class="section-label mb-2">pinned</p>
+                      )}
+                      <h2 class="text-base font-medium text-ink dark:text-paper">
+                        {poster.data.url ? (
+                          <a href={poster.data.url} class="hover:text-accent" target="_blank" rel="noopener noreferrer">
+                            {poster.data.title}
+                          </a>
+                        ) : (
+                          poster.data.title
+                        )}
+                      </h2>
+                      {poster.data.authors && (
+                        <p
+                          class="mt-1 text-sm leading-relaxed text-muted"
+                          set:html={highlightAuthors(poster.data.authors)}
+                        />
+                      )}
+                      {poster.data.venue && (
+                        <p class="mt-1 text-sm text-muted italic">{poster.data.venue}</p>
+                      )}
+                      {poster.data.summary && (
+                        <p class="mt-2 text-sm leading-relaxed text-muted">{poster.data.summary}</p>
+                      )}
+                      {poster.data.tags.length > 0 && (
+                        <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                          {poster.data.tags.map((tag) => (
+                            <a
+                              href={filterHref({ tag })}
+                              class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                              data-tag={tag}
+                            >
+                              {tag}
+                            </a>
+                          ))}
+                        </p>
+                      )}
+                      <p class="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                        {conference && (
+                          <a href={`/cv/#conference-${conference.id}`} class="link-accent">
+                            → conference
+                          </a>
+                        )}
+                        {note && (
+                          <a href={note} class="link-accent">→ read more</a>
+                        )}
+                        {poster.data.pdf && (
+                          <a href={poster.data.pdf} class="link-accent" target="_blank" rel="noopener noreferrer">
+                            pdf
+                          </a>
+                        )}
+                      </p>
+                    </div>
+                    <div class="flex w-16 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                      <a
+                        href={filterHref({ year: poster.data.year })}
+                        class="year-chip hover:text-accent"
+                        data-year={poster.data.year}
+                      >
+                        {poster.data.year}
+                      </a>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+            No posters match this filter.
+          </p>
+        </>
+      ) : (
+        <p class="border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10">
+          Posters will be listed here.
+        </p>
+      )}
+    </section>
+
+    <section id="projects" class="scroll-mt-20 pt-16" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// projects</p>
+        <div class="flex flex-wrap gap-3 text-xs text-muted">
+          <a href="/work/" class="hover:text-accent">work →</a>
+          <a href="#interesting" class="hover:text-accent">↓ interesting</a>
+        </div>
+      </div>
+      <ul class="space-y-0" data-filter-list>
+        {projects.map((project) => {
+          const note = blogHref(project.data.blog);
+          const href = `/projects/${project.id}/`;
+          return (
+            <li
+              id={`project-${project.id}`}
+              class:list={[
+                "scroll-mt-20 border-b border-ink/10 py-6 first:border-t dark:border-paper/10",
+                project.data.pinned && "is-pinned",
+              ]}
+              data-tags={tagsAttr(project.data.tags)}
+              data-year={project.data.year ?? ""}
+            >
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                <div class="min-w-0 flex-1">
+                  {(project.data.pinned ||
+                    project.data.stealth ||
+                    project.data.status === "planned" ||
+                    project.data.review) && (
+                    <p class="section-label mb-2">
+                      {[
+                        project.data.pinned && "pinned",
+                        project.data.status === "planned" && "planned",
+                        project.data.review && "review / opinion",
+                        project.data.stealth &&
+                          (project.data.status === "planned"
+                            ? "stealth"
+                            : "building in stealth"),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  )}
+                  <h2 class="text-base font-medium text-ink dark:text-paper">
+                    <a href={href} class="hover:text-accent">
+                      {project.data.title}
+                    </a>
+                  </h2>
+                  <p class="mt-2 text-sm leading-relaxed text-muted">{project.data.summary}</p>
+                  {project.data.tags.length > 0 && (
+                    <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                      {project.data.tags.map((tag) => (
+                        <a
+                          href={filterHref({ tag })}
+                          class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                          data-tag={tag}
+                        >
+                          {tag}
+                        </a>
+                      ))}
+                    </p>
+                  )}
+                  <p class="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                    <a href={href} class="link-accent">→ project</a>
+                    {note && (
+                      <a href={note} class="link-accent">→ read more</a>
+                    )}
+                    {project.data.link && (
+                      <a
+                        href={project.data.link}
+                        class="link-accent"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {parseGithubRepo(project.data.link) ? "github ↗" : "external ↗"}
+                      </a>
+                    )}
+                  </p>
+                </div>
+                <div class="flex w-20 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                  {project.data.year != null ? (
+                    <a
+                      href={filterHref({ year: project.data.year })}
+                      class="year-chip hover:text-accent"
+                      data-year={project.data.year}
+                    >
+                      {project.data.year}
+                    </a>
+                  ) : (
+                    <span class="text-xs text-muted">—</span>
+                  )}
+                  {(() => {
+                    const gh =
+                      project.data.link && githubStats.get(project.data.link);
+                    return gh ? (
+                      <a
+                        href={project.data.link}
+                        class="text-xs text-accent hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`GitHub stars & forks${gh.source === "cache" ? " (cached)" : ""}`}
+                      >
+                        ★ {gh.stars} · forks {gh.forks}
+                      </a>
+                    ) : null;
+                  })()}
+                  {project.data.status &&
+                    (!project.data.stealth || project.data.status === "planned") && (
+                      <span class="text-accent">{project.data.status}</span>
+                    )}
+                  {project.data.stealth && (
+                    <span class="text-accent">stealth</span>
+                  )}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+        No projects match this filter.
+      </p>
+    </section>
+
+    <section id="interesting" class="scroll-mt-20 pt-16" data-filter-section>
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// interesting papers</p>
+        <a href="#papers" class="text-xs text-muted hover:text-accent">↑ papers</a>
+      </div>
+      <p class="mb-6 max-w-2xl text-sm leading-relaxed text-muted">
+        Papers by others that shaped how I think about the field — not my own publications.
+      </p>
+      {interestingPapers.length > 0 ? (
+        <>
+          <ul class="space-y-0" data-filter-list>
+            {interestingPapers.map((paper) => {
+              const doi = extractDoi(paper.data.url);
+              const paperStat = doi ? paperMetrics.get(doi) : undefined;
+              return (
+              <li
+                class="border-b border-ink/10 py-6 first:border-t dark:border-paper/10"
+                data-tags={tagsAttr(paper.data.tags)}
+                data-year={paper.data.year}
+                data-citations={paperStat?.citations ?? 0}
+              >
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    {paper.data.preprint && (
+                      <p class="section-label mb-2">preprint</p>
+                    )}
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      {paper.data.url ? (
+                        <a
+                          href={paper.data.url}
+                          class="hover:text-accent"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {paper.data.title}
+                        </a>
+                      ) : (
+                        paper.data.title
+                      )}
+                    </h2>
+                    <p
+                      class="mt-1 text-sm leading-relaxed text-muted"
+                      set:html={highlightAuthors(paper.data.authors)}
+                    />
+                    {paper.data.venue && (
+                      <p class="mt-1 text-sm text-muted italic">{paper.data.venue}</p>
+                    )}
+                    {(paper.data.labs.length > 0 ||
+                      paper.data.departments.length > 0 ||
+                      paper.data.institutions.length > 0) && (
+                      <p class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
+                        {paper.data.institutions.map((id) => (
+                          <a href={`/institutions/${id}/`} class="hover:text-accent">
+                            {institutionLabel(id, institutions)}
+                          </a>
+                        ))}
+                        {paper.data.departments.map((id) => (
+                          <a href={`/departments/${id}/`} class="hover:text-accent">
+                            {departmentLabel(id, departments)}
+                          </a>
+                        ))}
+                        {paper.data.labs.map((id) => (
+                          <a href={`/labs/${id}/`} class="hover:text-accent">
+                            {labLabel(id, labs)}
+                          </a>
+                        ))}
+                      </p>
+                    )}
+                    {paper.data.note && (
+                      <p class="mt-3 text-sm leading-relaxed text-muted">{paper.data.note}</p>
+                    )}
+                    {paper.data.tags.length > 0 && (
+                      <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                        {paper.data.tags.map((tag) => (
+                          <a
+                            href={filterHref({ tag })}
+                            class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+                            data-tag={tag}
+                          >
+                            {tag}
+                          </a>
+                        ))}
+                      </p>
+                    )}
+                  </div>
+                  <div class="flex w-20 shrink-0 flex-col items-start gap-2 text-sm text-muted sm:items-end">
+                    <a
+                      href={filterHref({ year: paper.data.year })}
+                      class="year-chip hover:text-accent"
+                      data-year={paper.data.year}
+                    >
+                      {paper.data.year}
+                    </a>
+                    {paperStat && (
+                      paperStat.openAlexId ? (
+                        <a
+                          href={paperStat.openAlexId}
+                          class="text-xs text-accent hover:underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={`OpenAlex citations${paperStat.source === "cache" ? " (cached)" : ""}`}
+                        >
+                          cited {paperStat.citations}
+                        </a>
+                      ) : (
+                        <span class="text-xs text-accent">cited {paperStat.citations}</span>
+                      )
+                    )}
+                  </div>
+                </div>
+              </li>
+              );
+            })}
+          </ul>
+          <p class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10" hidden>
+            No interesting papers match this filter.
+          </p>
+        </>
+      ) : (
+        <p class="border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10">
+          Curated reading list coming soon.
+        </p>
+      )}
+    </section>
+  </section>
+
+  <script>
+    function currentFilters() {
+      const params = new URLSearchParams(window.location.search);
+      const sortParam = params.get("sort");
+      return {
+        tag: params.get("tag"),
+        year: params.get("year"),
+        sort:
+          sortParam === "cited" || sortParam === "year" ? sortParam : "standard",
+      };
+    }
+
+    function filterHrefClient(next) {
+      const params = new URLSearchParams();
+      if (next.tag) params.set("tag", next.tag);
+      if (next.year) params.set("year", next.year);
+      if (next.sort === "year" || next.sort === "cited") params.set("sort", next.sort);
+      const q = params.toString();
+      return q ? `/research/?${q}` : "/research/";
+    }
+
+    function applyPaperSort() {
+      const { sort } = currentFilters();
+      const list = document.querySelector("[data-paper-list]");
+      if (!list) return;
+
+      const items = Array.from(list.children);
+      items.sort((a, b) => {
+        if (sort === "cited") {
+          const ca = Number(a.getAttribute("data-citations") || 0);
+          const cb = Number(b.getAttribute("data-citations") || 0);
+          if (cb !== ca) return cb - ca;
+          const ya = Number(a.getAttribute("data-year") || 0);
+          const yb = Number(b.getAttribute("data-year") || 0);
+          return yb - ya;
+        }
+        if (sort === "year") {
+          const ya = Number(a.getAttribute("data-year") || 0);
+          const yb = Number(b.getAttribute("data-year") || 0);
+          return yb - ya;
+        }
+        // standard: pinned first, then year
+        const pa = a.getAttribute("data-pinned") === "1" ? 1 : 0;
+        const pb = b.getAttribute("data-pinned") === "1" ? 1 : 0;
+        if (pb !== pa) return pb - pa;
+        const ya = Number(a.getAttribute("data-year") || 0);
+        const yb = Number(b.getAttribute("data-year") || 0);
+        return yb - ya;
+      });
+      items.forEach((item) => list.appendChild(item));
+    }
+
+    function applyFilters() {
+      const { tag, year, sort } = currentFilters();
+      const root = document.querySelector("[data-filter-root]");
+      if (!root) return;
+
+      const active = Boolean(tag || year);
+
+      document.querySelectorAll(".tag-chip").forEach((chip) => {
+        const t = chip.getAttribute("data-tag") || "";
+        const isActive = Boolean(tag) && t === tag;
+        chip.classList.toggle("chip-active", isActive);
+        chip.setAttribute(
+          "href",
+          filterHrefClient({
+            tag: isActive ? undefined : t,
+            year: year || undefined,
+            sort: sort === "standard" ? undefined : sort,
+          }),
+        );
+      });
+
+      document.querySelectorAll(".year-chip").forEach((chip) => {
+        const y = chip.getAttribute("data-year") || "";
+        const isActive = Boolean(year) && y === year;
+        chip.classList.toggle("chip-active", isActive);
+        chip.setAttribute(
+          "href",
+          filterHrefClient({
+            tag: tag || undefined,
+            year: isActive ? undefined : y,
+            sort: sort === "standard" ? undefined : sort,
+          }),
+        );
+      });
+
+      document.querySelectorAll(".sort-chip").forEach((chip) => {
+        const s = chip.getAttribute("data-sort") || "year";
+        const isActive = s === sort;
+        chip.classList.toggle("chip-active", isActive);
+        // Clicking the active sort returns to standard (pinned first)
+        const nextSort = isActive ? undefined : s;
+        const href =
+          filterHrefClient({
+            tag: tag || undefined,
+            year: year || undefined,
+            sort: nextSort,
+          }) + "#papers";
+        chip.setAttribute("href", href);
+      });
+
+      applyPaperSort();
+
+      root.querySelectorAll("[data-filter-section]").forEach((section) => {
+        const items = section.querySelectorAll("[data-filter-list] > li");
+        let visible = 0;
+        items.forEach((item) => {
+          const tags = (item.getAttribute("data-tags") || "").split("|").filter(Boolean);
+          const itemYear = item.getAttribute("data-year") || "";
+          const tagOk =
+            !tag || tags.some((t) => t.toLowerCase() === String(tag).toLowerCase());
+          const yearOk = !year || itemYear === year;
+          const show = tagOk && yearOk;
+          item.hidden = !show;
+          item.classList.toggle("hidden", !show);
+          if (show) visible += 1;
+        });
+        const empty = section.querySelector(".filter-empty");
+        if (empty) {
+          const showEmpty = active && visible === 0;
+          empty.hidden = !showEmpty;
+          empty.classList.toggle("hidden", !showEmpty);
+        }
+      });
+    }
+
+    applyFilters();
+    window.addEventListener("popstate", applyFilters);
+  </script>
+</Layout>

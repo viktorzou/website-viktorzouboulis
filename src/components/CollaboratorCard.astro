@@ -1,0 +1,235 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { InterestingPaper, Paper } from "../lib/authors";
+import {
+  departmentLabel,
+  institutionLabel,
+  labLabel,
+  type Department,
+  type Institution,
+  type Lab,
+} from "../lib/orgs";
+
+interface Props {
+  person: CollectionEntry<"collaborators">;
+  shared: Paper[];
+  interesting: InterestingPaper[];
+  institutions: Institution[];
+  departments: Department[];
+  labs: Lab[];
+}
+
+const { person, shared, interesting, institutions, departments, labs } = Astro.props;
+const institutionName = institutionLabel(person.data.institution, institutions);
+const departmentName = departmentLabel(person.data.department, departments);
+const labName = labLabel(person.data.lab, labs);
+
+const orgParts = [
+  person.data.institution,
+  person.data.department,
+  person.data.lab,
+].filter(Boolean);
+
+function filterHref(opts: {
+  tag?: string;
+  institution?: string;
+  department?: string;
+  lab?: string;
+}) {
+  const params = new URLSearchParams();
+  if (opts.tag) params.set("tag", opts.tag);
+  if (opts.institution) params.set("institution", opts.institution);
+  if (opts.department) params.set("department", opts.department);
+  if (opts.lab) params.set("lab", opts.lab);
+  const q = params.toString();
+  return q ? `/collaborators/?${q}` : "/collaborators/";
+}
+---
+
+<li
+  id={person.id}
+  class:list={[
+    "scroll-mt-20 border-b border-ink/10 py-8 first:border-t dark:border-paper/10",
+    person.data.pinned && "is-pinned",
+  ]}
+  data-institution={person.data.institution ?? ""}
+  data-department={person.data.department ?? ""}
+  data-lab={person.data.lab ?? ""}
+  data-tags={person.data.tags.join("|")}
+  data-kind={person.data.kind}
+>
+  {person.data.pinned && <p class="section-label mb-2">pinned</p>}
+  <h2 class="text-base font-medium text-ink dark:text-paper">
+    <a
+      href={person.data.url}
+      class="hover:text-accent"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {person.data.name}
+    </a>
+  </h2>
+  <p class="mt-1 text-sm text-accent">
+    {person.data.kind === "supervisor"
+      ? "supervisor · "
+      : person.data.kind === "co-supervisor"
+        ? "co-supervisor · "
+        : person.data.kind === "former-supervisor"
+          ? "former supervisor · "
+          : person.data.kind === "student"
+            ? "student · "
+            : ""}
+    {person.data.role}
+  </p>
+  <p class="mt-1 text-sm text-muted">
+    {person.data.institution && (
+      <a
+        href={`/institutions/${person.data.institution}/`}
+        class="hover:text-accent"
+      >
+        {institutionName}
+      </a>
+    )}
+    {person.data.institution && person.data.department && (
+      <span class="mx-2 text-muted/40">·</span>
+    )}
+    {person.data.department && (
+      <a
+        href={`/departments/${person.data.department}/`}
+        class="hover:text-accent"
+      >
+        {departmentName}
+      </a>
+    )}
+    {person.data.department && person.data.lab && (
+      <span class="mx-2 text-muted/40">·</span>
+    )}
+    {!person.data.department &&
+      person.data.institution &&
+      person.data.lab && <span class="mx-2 text-muted/40">·</span>}
+    {person.data.lab && (
+      <a href={`/labs/${person.data.lab}/`} class="hover:text-accent">
+        {labName}
+      </a>
+    )}
+    {orgParts.length > 0 && <span class="mx-2 text-muted/40">·</span>}
+    {person.data.affiliation}
+  </p>
+  <p class="mt-3 text-sm leading-relaxed text-muted">{person.data.summary}</p>
+  {person.data.tags.length > 0 && (
+    <p class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+      {person.data.tags.map((tag) => (
+        <a
+          href={filterHref({ tag })}
+          class="tag-chip border border-ink/10 px-1.5 py-0.5 hover:border-accent hover:text-accent dark:border-paper/10"
+          data-tag={tag}
+        >
+          {tag}
+        </a>
+      ))}
+    </p>
+  )}
+  <p class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+    <a
+      href={person.data.url}
+      class="link-accent"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      profile ↗
+    </a>
+    {person.data.lab && (
+      <a href={`/labs/${person.data.lab}/`} class="text-muted hover:text-accent">
+        lab →
+      </a>
+    )}
+    {person.data.department && (
+      <a
+        href={`/departments/${person.data.department}/`}
+        class="text-muted hover:text-accent"
+      >
+        department →
+      </a>
+    )}
+    {person.data.institution && (
+      <a
+        href={`/institutions/${person.data.institution}/`}
+        class="text-muted hover:text-accent"
+      >
+        institution →
+      </a>
+    )}
+    {person.data.links.map((link) => (
+      <a
+        href={link.href}
+        class="text-muted hover:text-accent"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {link.label} ↗
+      </a>
+    ))}
+  </p>
+
+  {shared.length > 0 && (
+    <div class="mt-6">
+      <p class="section-label mb-3">// shared papers</p>
+      <ul class="space-y-3">
+        {shared.map((paper) => (
+          <li class="text-sm">
+            <span class="text-muted">{paper.data.year}</span>
+            <span class="mx-2 text-muted/40">·</span>
+            {paper.data.url ? (
+              <a
+                href={paper.data.url}
+                class="text-ink hover:text-accent dark:text-paper"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {paper.data.title}
+              </a>
+            ) : (
+              <span class="text-ink dark:text-paper">{paper.data.title}</span>
+            )}
+            <span class="mt-0.5 block text-xs text-muted italic">{paper.data.venue}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {interesting.length > 0 && (
+    <div class="mt-6">
+      <p class="section-label mb-3">// interesting papers</p>
+      <ul class="space-y-3">
+        {interesting.map((paper) => (
+          <li class="text-sm">
+            <span class="text-muted">{paper.data.year}</span>
+            {paper.data.preprint && (
+              <>
+                <span class="mx-2 text-muted/40">·</span>
+                <span class="text-xs text-accent">preprint</span>
+              </>
+            )}
+            <span class="mx-2 text-muted/40">·</span>
+            {paper.data.url ? (
+              <a
+                href={paper.data.url}
+                class="text-ink hover:text-accent dark:text-paper"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {paper.data.title}
+              </a>
+            ) : (
+              <span class="text-ink dark:text-paper">{paper.data.title}</span>
+            )}
+            {paper.data.venue && (
+              <span class="mt-0.5 block text-xs text-muted italic">{paper.data.venue}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</li>

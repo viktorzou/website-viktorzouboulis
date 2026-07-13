@@ -1,0 +1,676 @@
+---
+import Layout from "../layouts/Layout.astro";
+import CollaboratorCard from "../components/CollaboratorCard.astro";
+import { getCollection } from "astro:content";
+import { site } from "../data/site";
+import { sharedInterestingPapers, sharedPapers } from "../lib/authors";
+
+const collaborators = (await getCollection("collaborators")).sort((a, b) => {
+  if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+  return a.data.order - b.data.order || a.data.name.localeCompare(b.data.name);
+});
+const papers = await getCollection("papers");
+const interestingPapers = await getCollection("interestingPapers");
+
+const allInstitutions = await getCollection("institutions");
+const allDepartments = await getCollection("departments");
+const allLabs = await getCollection("labs");
+const allCompanies = await getCollection("companies");
+
+function peopleAtInstitution(id: string) {
+  return collaborators.filter((c) => c.data.institution === id).length;
+}
+function peopleAtDepartment(id: string) {
+  return collaborators.filter((c) => c.data.department === id).length;
+}
+function peopleAtLab(id: string) {
+  return collaborators.filter((c) => c.data.lab === id).length;
+}
+function peopleAtCompany(id: string) {
+  return collaborators.filter((c) => c.data.company === id).length;
+}
+
+function byPeopleThenName<T extends { id: string; data: { short?: string; name?: string } }>(
+  a: T,
+  b: T,
+  count: (id: string) => number,
+) {
+  const diff = count(b.id) - count(a.id);
+  if (diff !== 0) return diff;
+  const aLabel = a.data.short ?? a.data.name ?? a.id;
+  const bLabel = b.data.short ?? b.data.name ?? b.id;
+  return aLabel.localeCompare(bLabel);
+}
+
+const institutions = [...allInstitutions].sort((a, b) =>
+  byPeopleThenName(a, b, peopleAtInstitution),
+);
+const departments = [...allDepartments].sort((a, b) =>
+  byPeopleThenName(a, b, peopleAtDepartment),
+);
+const labs = [...allLabs].sort((a, b) => byPeopleThenName(a, b, peopleAtLab));
+const companies = [...allCompanies].sort((a, b) =>
+  byPeopleThenName(a, b, peopleAtCompany),
+);
+
+const institutionById = new Map(institutions.map((i) => [i.id, i]));
+const departmentById = new Map(departments.map((d) => [d.id, d]));
+const departmentsByInstitution = new Map(
+  institutions.map((i) => [
+    i.id,
+    departments
+      .filter((d) => d.data.institution === i.id)
+      .sort((a, b) => byPeopleThenName(a, b, peopleAtDepartment)),
+  ]),
+);
+const labsByDepartment = new Map(
+  departments.map((d) => [
+    d.id,
+    labs
+      .filter((l) => l.data.department === d.id)
+      .sort((a, b) => byPeopleThenName(a, b, peopleAtLab)),
+  ]),
+);
+
+const supervisors = collaborators.filter((c) => c.data.kind === "supervisor");
+const coSupervisors = collaborators.filter((c) => c.data.kind === "co-supervisor");
+const formerSupervisors = collaborators.filter(
+  (c) => c.data.kind === "former-supervisor",
+);
+const students = collaborators.filter((c) => c.data.kind === "student");
+const others = collaborators.filter((c) => c.data.kind === "collaborator");
+
+const tags = [
+  ...new Set(collaborators.flatMap((c) => c.data.tags)),
+].sort((a, b) => a.localeCompare(b));
+
+function filterHref(opts: {
+  tag?: string;
+  institution?: string;
+  department?: string;
+  lab?: string;
+}) {
+  const params = new URLSearchParams();
+  if (opts.tag) params.set("tag", opts.tag);
+  if (opts.institution) params.set("institution", opts.institution);
+  if (opts.department) params.set("department", opts.department);
+  if (opts.lab) params.set("lab", opts.lab);
+  const q = params.toString();
+  return q ? `/collaborators/?${q}` : "/collaborators/";
+}
+---
+
+<Layout title={`Collaborators — ${site.name}`}>
+  <section class="page-wrap py-16 sm:py-20" data-filter-root>
+    <p class="section-label mb-4">05 — collaborators</p>
+    <h1 class="text-3xl font-medium text-ink sm:text-4xl dark:text-paper">
+      Collaborators & organisations
+    </h1>
+    <p class="mt-4 max-w-xl text-base leading-relaxed text-muted">
+      Mentors, co-authors, institutions, departments, labs, and research partners.
+      Shared and interesting papers are linked below each person; co-author names on
+      <a href="/research/" class="link-accent">research</a> also jump here.
+    </p>
+
+    <nav
+      class="mt-10 flex flex-col gap-4 border border-ink/10 p-4 text-sm dark:border-paper/10"
+      aria-label="Collaborator filters"
+    >
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="section-label">jump</span>
+        {supervisors.length > 0 && (
+          <a href="#supervisors" class="link-accent">→ supervisors</a>
+        )}
+        {coSupervisors.length > 0 && (
+          <a href="#co-supervisors" class="link-accent">→ co-supervisors</a>
+        )}
+        {formerSupervisors.length > 0 && (
+          <a href="#former-supervisors" class="link-accent">→ former supervisors</a>
+        )}
+        {students.length > 0 && (
+          <a href="#students" class="link-accent">→ students</a>
+        )}
+        {others.length > 0 && (
+          <a href="#collaborators-list" class="link-accent">→ collaborators</a>
+        )}
+        {institutions.length > 0 && (
+          <a href="#institutions" class="link-accent">→ institutions</a>
+        )}
+        {departments.length > 0 && (
+          <a href="#departments" class="link-accent">→ departments</a>
+        )}
+        {labs.length > 0 && (
+          <a href="#labs" class="link-accent">→ labs</a>
+        )}
+        {companies.length > 0 && (
+          <a href="#companies" class="link-accent">→ companies</a>
+        )}
+      </div>
+
+      {institutions.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="section-label mr-1">institution</span>
+          {institutions.map((institution) => (
+            <a
+              href={filterHref({ institution: institution.id })}
+              class="institution-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+              data-institution={institution.id}
+            >
+              {institution.data.short}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {departments.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="section-label mr-1">department</span>
+          {departments.map((department) => (
+            <a
+              href={filterHref({ department: department.id })}
+              class="department-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+              data-department={department.id}
+            >
+              {department.data.short}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {labs.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="section-label mr-1">lab</span>
+          {labs.map((lab) => (
+            <a
+              href={filterHref({ lab: lab.id })}
+              class="lab-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+              data-lab={lab.id}
+            >
+              {lab.data.name}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {tags.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="section-label mr-1">tag</span>
+          {tags.map((tag) => (
+            <a
+              href={filterHref({ tag })}
+              class="tag-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+              data-tag={tag}
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      )}
+    </nav>
+
+    <p
+      id="filter-banner"
+      class="mt-6 hidden border border-ink/10 px-3 py-2 text-sm text-muted dark:border-paper/10"
+      hidden
+    >
+      filtered by
+      <span id="filter-banner-parts" class="text-accent"></span>
+      <a href="/collaborators/" class="link-accent ml-2">clear</a>
+    </p>
+
+    <div class="rule mt-12"></div>
+
+    {supervisors.length > 0 && (
+      <section id="supervisors" class="scroll-mt-20 pt-4" data-filter-section>
+        <p class="section-label mb-0">// supervisors</p>
+        <ul class="mt-0" data-filter-list>
+          {supervisors.map((person) => (
+            <CollaboratorCard
+              person={person}
+              shared={sharedPapers(papers, person)}
+              interesting={sharedInterestingPapers(interestingPapers, person)}
+              institutions={institutions}
+              departments={departments}
+              labs={labs}
+            />
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {coSupervisors.length > 0 && (
+      <section id="co-supervisors" class="scroll-mt-20 pt-12" data-filter-section>
+        <p class="section-label mb-0">// co-supervisors</p>
+        <ul class="mt-0" data-filter-list>
+          {coSupervisors.map((person) => (
+            <CollaboratorCard
+              person={person}
+              shared={sharedPapers(papers, person)}
+              interesting={sharedInterestingPapers(interestingPapers, person)}
+              institutions={institutions}
+              departments={departments}
+              labs={labs}
+            />
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {formerSupervisors.length > 0 && (
+      <section id="former-supervisors" class="scroll-mt-20 pt-12" data-filter-section>
+        <p class="section-label mb-0">// former supervisors</p>
+        <ul class="mt-0" data-filter-list>
+          {formerSupervisors.map((person) => (
+            <CollaboratorCard
+              person={person}
+              shared={sharedPapers(papers, person)}
+              interesting={sharedInterestingPapers(interestingPapers, person)}
+              institutions={institutions}
+              departments={departments}
+              labs={labs}
+            />
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {students.length > 0 && (
+      <section id="students" class="scroll-mt-20 pt-12" data-filter-section>
+        <p class="section-label mb-0">// students</p>
+        <ul class="mt-0" data-filter-list>
+          {students.map((person) => (
+            <CollaboratorCard
+              person={person}
+              shared={sharedPapers(papers, person)}
+              interesting={sharedInterestingPapers(interestingPapers, person)}
+              institutions={institutions}
+              departments={departments}
+              labs={labs}
+            />
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {others.length > 0 && (
+      <section id="collaborators-list" class="scroll-mt-20 pt-12" data-filter-section>
+        <p class="section-label mb-0">// collaborators</p>
+        <ul class="mt-0" data-filter-list>
+          {others.map((person) => (
+            <CollaboratorCard
+              person={person}
+              shared={sharedPapers(papers, person)}
+              interesting={sharedInterestingPapers(interestingPapers, person)}
+              institutions={institutions}
+              departments={departments}
+              labs={labs}
+            />
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {institutions.length > 0 && (
+      <section id="institutions" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// institutions</p>
+        <ul>
+          {institutions.map((institution) => {
+            const linkedDepartments =
+              departmentsByInstitution.get(institution.id) ?? [];
+            const peopleCount = peopleAtInstitution(institution.id);
+            return (
+              <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      <a
+                        href={`/institutions/${institution.id}/`}
+                        class="hover:text-accent"
+                      >
+                        {institution.data.name}
+                      </a>
+                    </h2>
+                    {institution.data.summary && (
+                      <p class="mt-2 text-sm leading-relaxed text-muted">
+                        {institution.data.summary}
+                      </p>
+                    )}
+                    {linkedDepartments.length > 0 && (
+                      <p class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
+                        {linkedDepartments.map((department) => (
+                          <a
+                            href={`/departments/${department.id}/`}
+                            class="hover:text-accent"
+                          >
+                            {department.data.short}
+                          </a>
+                        ))}
+                        {linkedDepartments
+                          .flatMap((d) => labsByDepartment.get(d.id) ?? [])
+                          .map((lab) => (
+                            <a href={`/labs/${lab.id}/`} class="hover:text-accent">
+                              {lab.data.name}
+                            </a>
+                          ))}
+                      </p>
+                    )}
+                  </div>
+                  <div class="flex w-28 shrink-0 flex-col items-start gap-1 text-sm text-muted sm:items-end">
+                    <span class="text-accent">{institution.data.short}</span>
+                    <span class="text-xs">{peopleCount} people</span>
+                    <a href={`/institutions/${institution.id}/`} class="link-accent text-xs">
+                      → institution
+                    </a>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    )}
+
+    {departments.length > 0 && (
+      <section id="departments" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// departments</p>
+        <ul>
+          {departments.map((department) => {
+            const institution = institutionById.get(department.data.institution);
+            const linkedLabs = labsByDepartment.get(department.id) ?? [];
+            const peopleCount = peopleAtDepartment(department.id);
+            return (
+              <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      <a
+                        href={`/departments/${department.id}/`}
+                        class="hover:text-accent"
+                      >
+                        {department.data.name}
+                      </a>
+                    </h2>
+                    {department.data.summary && (
+                      <p class="mt-2 text-sm leading-relaxed text-muted">
+                        {department.data.summary}
+                      </p>
+                    )}
+                    <p class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
+                      {institution && (
+                        <a
+                          href={`/institutions/${institution.id}/`}
+                          class="hover:text-accent"
+                        >
+                          {institution.data.short}
+                        </a>
+                      )}
+                      {linkedLabs.map((lab) => (
+                        <a href={`/labs/${lab.id}/`} class="hover:text-accent">
+                          {lab.data.name}
+                        </a>
+                      ))}
+                    </p>
+                  </div>
+                  <div class="flex w-28 shrink-0 flex-col items-start gap-1 text-sm text-muted sm:items-end">
+                    <span class="text-accent">{department.data.short}</span>
+                    <span class="text-xs">{peopleCount} people</span>
+                    <a href={`/departments/${department.id}/`} class="link-accent text-xs">
+                      → department
+                    </a>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    )}
+
+    {labs.length > 0 && (
+      <section id="labs" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// labs</p>
+        <ul>
+          {labs.map((lab) => {
+            const department = departmentById.get(lab.data.department);
+            const institution = department
+              ? institutionById.get(department.data.institution)
+              : undefined;
+            const peopleCount = peopleAtLab(lab.id);
+            return (
+              <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-base font-medium text-ink dark:text-paper">
+                      <a href={`/labs/${lab.id}/`} class="hover:text-accent">
+                        {lab.data.name}
+                      </a>
+                    </h2>
+                    {lab.data.summary && (
+                      <p class="mt-2 text-sm leading-relaxed text-muted">
+                        {lab.data.summary}
+                      </p>
+                    )}
+                    {(institution || department) && (
+                      <p class="mt-2 text-xs text-muted">
+                        {institution && (
+                          <a
+                            href={`/institutions/${institution.id}/`}
+                            class="hover:text-accent"
+                          >
+                            {institution.data.short}
+                          </a>
+                        )}
+                        {institution && department && (
+                          <span class="mx-2 text-muted/40">·</span>
+                        )}
+                        {department && (
+                          <a
+                            href={`/departments/${department.id}/`}
+                            class="hover:text-accent"
+                          >
+                            {department.data.short}
+                          </a>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                  <div class="flex w-28 shrink-0 flex-col items-start gap-1 text-sm text-muted sm:items-end">
+                    <span class="text-xs">{peopleCount} people</span>
+                    <a href={`/labs/${lab.id}/`} class="link-accent text-xs">
+                      → lab
+                    </a>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    )}
+
+    {companies.length > 0 && (
+      <section id="companies" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// companies</p>
+        <ul>
+          {companies.map((company) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-12">
+                <div class="min-w-0 flex-1">
+                  <h2 class="text-base font-medium text-ink dark:text-paper">
+                    <a href={`/companies/${company.id}/`} class="hover:text-accent">
+                      {company.data.name}
+                    </a>
+                  </h2>
+                  {company.data.summary && (
+                    <p class="mt-2 text-sm leading-relaxed text-muted">
+                      {company.data.summary}
+                    </p>
+                  )}
+                </div>
+                <div class="flex w-28 shrink-0 flex-col items-start gap-1 text-sm text-muted sm:items-end">
+                  <span class="text-accent">{company.data.short}</span>
+                  <a href={`/companies/${company.id}/`} class="link-accent text-xs">
+                    → company
+                  </a>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <p
+      class="filter-empty hidden border-t border-ink/10 py-6 text-sm text-muted dark:border-paper/10"
+      hidden
+    >
+      No people match this filter.
+    </p>
+  </section>
+
+  <script>
+    function currentFilters() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        tag: params.get("tag"),
+        institution: params.get("institution"),
+        department: params.get("department"),
+        lab: params.get("lab"),
+      };
+    }
+
+    function filterHrefClient(next) {
+      const params = new URLSearchParams();
+      if (next.tag) params.set("tag", next.tag);
+      if (next.institution) params.set("institution", next.institution);
+      if (next.department) params.set("department", next.department);
+      if (next.lab) params.set("lab", next.lab);
+      const q = params.toString();
+      return q ? `/collaborators/?${q}` : "/collaborators/";
+    }
+
+    function applyFilters() {
+      const { tag, institution, department, lab } = currentFilters();
+      const banner = document.getElementById("filter-banner");
+      const parts = document.getElementById("filter-banner-parts");
+      const root = document.querySelector("[data-filter-root]");
+      if (!root) return;
+
+      const active = Boolean(tag || institution || department || lab);
+      if (banner && parts) {
+        banner.hidden = !active;
+        banner.classList.toggle("hidden", !active);
+        const bits = [];
+        if (institution) bits.push(`institution:${institution}`);
+        if (department) bits.push(`department:${department}`);
+        if (lab) bits.push(`lab:${lab}`);
+        if (tag) bits.push(`tag:${tag}`);
+        parts.textContent = bits.length ? ` ${bits.join(" · ")}` : "";
+      }
+
+      document.querySelectorAll(".tag-chip").forEach((chip) => {
+        const t = chip.getAttribute("data-tag") || "";
+        const isActive = Boolean(tag) && t === tag;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute(
+          "href",
+          filterHrefClient({
+            tag: t,
+            institution: institution || undefined,
+            department: department || undefined,
+            lab: lab || undefined,
+          }),
+        );
+      });
+
+      document.querySelectorAll(".institution-chip").forEach((chip) => {
+        const i = chip.getAttribute("data-institution") || "";
+        const isActive = Boolean(institution) && i === institution;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute(
+          "href",
+          filterHrefClient({
+            tag: tag || undefined,
+            institution: i,
+            department: department || undefined,
+            lab: lab || undefined,
+          }),
+        );
+      });
+
+      document.querySelectorAll(".department-chip").forEach((chip) => {
+        const d = chip.getAttribute("data-department") || "";
+        const isActive = Boolean(department) && d === department;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute(
+          "href",
+          filterHrefClient({
+            tag: tag || undefined,
+            institution: institution || undefined,
+            department: d,
+            lab: lab || undefined,
+          }),
+        );
+      });
+
+      document.querySelectorAll(".lab-chip").forEach((chip) => {
+        const l = chip.getAttribute("data-lab") || "";
+        const isActive = Boolean(lab) && l === lab;
+        chip.classList.toggle("border-accent", isActive);
+        chip.classList.toggle("text-accent", isActive);
+        chip.setAttribute(
+          "href",
+          filterHrefClient({
+            tag: tag || undefined,
+            institution: institution || undefined,
+            department: department || undefined,
+            lab: l,
+          }),
+        );
+      });
+
+      let visible = 0;
+      root.querySelectorAll("[data-filter-section]").forEach((section) => {
+        const items = section.querySelectorAll("[data-filter-list] > li");
+        let sectionVisible = 0;
+        items.forEach((item) => {
+          const tags = (item.getAttribute("data-tags") || "").split("|").filter(Boolean);
+          const itemInstitution = item.getAttribute("data-institution") || "";
+          const itemDepartment = item.getAttribute("data-department") || "";
+          const itemLab = item.getAttribute("data-lab") || "";
+          const tagOk =
+            !tag || tags.some((t) => t.toLowerCase() === String(tag).toLowerCase());
+          const institutionOk =
+            !institution ||
+            itemInstitution.toLowerCase() === String(institution).toLowerCase();
+          const departmentOk =
+            !department ||
+            itemDepartment.toLowerCase() === String(department).toLowerCase();
+          const labOk = !lab || itemLab.toLowerCase() === String(lab).toLowerCase();
+          const show = tagOk && institutionOk && departmentOk && labOk;
+          item.hidden = !show;
+          item.classList.toggle("hidden", !show);
+          if (show) {
+            sectionVisible += 1;
+            visible += 1;
+          }
+        });
+        section.hidden = active && sectionVisible === 0;
+        section.classList.toggle("hidden", active && sectionVisible === 0);
+      });
+
+      const empty = root.querySelector(".filter-empty");
+      if (empty) {
+        const showEmpty = active && visible === 0;
+        empty.hidden = !showEmpty;
+        empty.classList.toggle("hidden", !showEmpty);
+      }
+    }
+
+    applyFilters();
+    window.addEventListener("popstate", applyFilters);
+  </script>
+</Layout>
