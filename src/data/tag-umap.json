@@ -1,0 +1,777 @@
+{
+  "generatedAt": "2026-07-13T23:32:08.928443+00:00",
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "method": "umap + agglomerative (2d)",
+  "islands": [
+    {
+      "id": 0,
+      "label": "award \u00b7 guideline \u00b7 meta-analysis",
+      "color": "#0F766E",
+      "size": 17,
+      "x": 0.3196312189102173,
+      "y": 0.14735986292362213
+    },
+    {
+      "id": 2,
+      "label": "machine learning \u00b7 modelling \u00b7 Computing in Science",
+      "color": "#1D4ED8",
+      "size": 14,
+      "x": 0.525102436542511,
+      "y": 0.4302164614200592
+    },
+    {
+      "id": 7,
+      "label": "IBD \u00b7 EHSF \u00b7 IL-10",
+      "color": "#334155",
+      "size": 13,
+      "x": 0.15868671238422394,
+      "y": 0.47299131751060486
+    },
+    {
+      "id": 4,
+      "label": "cryosurgery \u00b7 clinical data \u00b7 clinical",
+      "color": "#3F6212",
+      "size": 12,
+      "x": 0.7924540638923645,
+      "y": 0.3352862298488617
+    },
+    {
+      "id": 1,
+      "label": "dermatology \u00b7 hidradenitis suppurativa \u00b7 bioinformatics",
+      "color": "#B45309",
+      "size": 11,
+      "x": 0.7389062643051147,
+      "y": 0.5840502977371216
+    },
+    {
+      "id": 5,
+      "label": "immunology \u00b7 autoantibodies \u00b7 systems immunology",
+      "color": "#0E7490",
+      "size": 8,
+      "x": 0.897599995136261,
+      "y": 0.8880833387374878
+    },
+    {
+      "id": 3,
+      "label": "single-cell \u00b7 virtual cell \u00b7 keloids",
+      "color": "#9F1239",
+      "size": 7,
+      "x": 0.689994752407074,
+      "y": 0.7710976004600525
+    },
+    {
+      "id": 6,
+      "label": "HS \u00b7 Hamburg \u00b7 HLA",
+      "color": "#A16207",
+      "size": 6,
+      "x": 0.12453524023294449,
+      "y": 0.25954076647758484
+    }
+  ],
+  "points": [
+    {
+      "tag": "IBD",
+      "count": 13,
+      "href": "/research/?tag=IBD",
+      "x": 0.09285064041614532,
+      "y": 0.45690682530403137,
+      "cluster": 7
+    },
+    {
+      "tag": "dermatology",
+      "count": 12,
+      "href": "/research/?tag=dermatology",
+      "x": 0.8721258044242859,
+      "y": 0.6199519634246826,
+      "cluster": 1
+    },
+    {
+      "tag": "single-cell",
+      "count": 11,
+      "href": "/research/?tag=single-cell",
+      "x": 0.7645471692085266,
+      "y": 0.7761753797531128,
+      "cluster": 3
+    },
+    {
+      "tag": "virtual cell",
+      "count": 9,
+      "href": "/research/?tag=virtual%20cell",
+      "x": 0.7347514629364014,
+      "y": 0.7439898252487183,
+      "cluster": 3
+    },
+    {
+      "tag": "hidradenitis suppurativa",
+      "count": 8,
+      "href": "/research/?tag=hidradenitis%20suppurativa",
+      "x": 0.8964616656303406,
+      "y": 0.6934815049171448,
+      "cluster": 1
+    },
+    {
+      "tag": "cryosurgery",
+      "count": 7,
+      "href": "/research/?tag=cryosurgery",
+      "x": 0.8455493450164795,
+      "y": 0.3538803160190582,
+      "cluster": 4
+    },
+    {
+      "tag": "keloids",
+      "count": 7,
+      "href": "/research/?tag=keloids",
+      "x": 0.8014965653419495,
+      "y": 0.8517991304397583,
+      "cluster": 3
+    },
+    {
+      "tag": "machine learning",
+      "count": 7,
+      "href": "/research/?tag=machine%20learning",
+      "x": 0.4853779673576355,
+      "y": 0.36309072375297546,
+      "cluster": 2
+    },
+    {
+      "tag": "EHSF",
+      "count": 5,
+      "href": "/cv/?tag=EHSF",
+      "x": 0.12829235196113586,
+      "y": 0.39536312222480774,
+      "cluster": 7
+    },
+    {
+      "tag": "HS",
+      "count": 5,
+      "href": "/cv/?tag=HS",
+      "x": 0.1331857144832611,
+      "y": 0.3146492838859558,
+      "cluster": 6
+    },
+    {
+      "tag": "IL-10",
+      "count": 5,
+      "href": "/research/?tag=IL-10",
+      "x": 0.05999999865889549,
+      "y": 0.4296005368232727,
+      "cluster": 7
+    },
+    {
+      "tag": "immunology",
+      "count": 5,
+      "href": "/research/?tag=immunology",
+      "x": 0.9273408651351929,
+      "y": 0.8693135976791382,
+      "cluster": 5
+    },
+    {
+      "tag": "autoantibodies",
+      "count": 4,
+      "href": "/research/?tag=autoantibodies",
+      "x": 0.9089581966400146,
+      "y": 0.8162655234336853,
+      "cluster": 5
+    },
+    {
+      "tag": "bioinformatics",
+      "count": 4,
+      "href": "/research/?tag=bioinformatics",
+      "x": 0.6077523827552795,
+      "y": 0.5112243890762329,
+      "cluster": 1
+    },
+    {
+      "tag": "modelling",
+      "count": 4,
+      "href": "/research/?tag=modelling",
+      "x": 0.46943530440330505,
+      "y": 0.32070183753967285,
+      "cluster": 2
+    },
+    {
+      "tag": "systems immunology",
+      "count": 4,
+      "href": "/research/?tag=systems%20immunology",
+      "x": 0.9146208763122559,
+      "y": 0.8736482262611389,
+      "cluster": 5
+    },
+    {
+      "tag": "IEI",
+      "count": 3,
+      "href": "/research/?tag=IEI",
+      "x": 0.09413054585456848,
+      "y": 0.5104529857635498,
+      "cluster": 7
+    },
+    {
+      "tag": "nanopore",
+      "count": 3,
+      "href": "/research/?tag=nanopore",
+      "x": 0.759345293045044,
+      "y": 0.8509913682937622,
+      "cluster": 3
+    },
+    {
+      "tag": "Computing in Science",
+      "count": 2,
+      "href": "/collaborators/?tag=Computing%20in%20Science",
+      "x": 0.5800250768661499,
+      "y": 0.4202616810798645,
+      "cluster": 2
+    },
+    {
+      "tag": "GCB",
+      "count": 2,
+      "href": "/research/?tag=GCB",
+      "x": 0.22476719319820404,
+      "y": 0.6010194420814514,
+      "cluster": 7
+    },
+    {
+      "tag": "Hamburg",
+      "count": 2,
+      "href": "/research/?tag=Hamburg",
+      "x": 0.06735792756080627,
+      "y": 0.30363091826438904,
+      "cluster": 6
+    },
+    {
+      "tag": "award",
+      "count": 2,
+      "href": "/cv/?tag=award",
+      "x": 0.17718152701854706,
+      "y": 0.13907092809677124,
+      "cluster": 0
+    },
+    {
+      "tag": "biomarkers",
+      "count": 2,
+      "href": "/research/?tag=biomarkers",
+      "x": 0.7265784740447998,
+      "y": 0.5708006620407104,
+      "cluster": 1
+    },
+    {
+      "tag": "clinical data",
+      "count": 2,
+      "href": "/research/?tag=clinical%20data",
+      "x": 0.7142940759658813,
+      "y": 0.33812838792800903,
+      "cluster": 4
+    },
+    {
+      "tag": "databases",
+      "count": 2,
+      "href": "/research/?tag=databases",
+      "x": 0.5429922342300415,
+      "y": 0.5026490688323975,
+      "cluster": 2
+    },
+    {
+      "tag": "genomics",
+      "count": 2,
+      "href": "/collaborators/?tag=genomics",
+      "x": 0.6137152910232544,
+      "y": 0.6408246755599976,
+      "cluster": 1
+    },
+    {
+      "tag": "guideline",
+      "count": 2,
+      "href": "/research/?tag=guideline",
+      "x": 0.3921782374382019,
+      "y": 0.21118399500846863,
+      "cluster": 0
+    },
+    {
+      "tag": "macrophages",
+      "count": 2,
+      "href": "/research/?tag=macrophages",
+      "x": 0.8577604293823242,
+      "y": 0.899406909942627,
+      "cluster": 5
+    },
+    {
+      "tag": "meta-analysis",
+      "count": 2,
+      "href": "/research/?tag=meta-analysis",
+      "x": 0.3878081440925598,
+      "y": 0.10029514133930206,
+      "cluster": 0
+    },
+    {
+      "tag": "metabolism",
+      "count": 2,
+      "href": "/collaborators/?tag=metabolism",
+      "x": 0.7590098977088928,
+      "y": 0.5442669987678528,
+      "cluster": 1
+    },
+    {
+      "tag": "prize",
+      "count": 2,
+      "href": "/cv/?tag=prize",
+      "x": 0.17634789645671844,
+      "y": 0.11732026934623718,
+      "cluster": 0
+    },
+    {
+      "tag": "CITE-seq",
+      "count": 1,
+      "href": "/research/?tag=CITE-seq",
+      "x": 0.26440727710723877,
+      "y": 0.41121307015419006,
+      "cluster": 7
+    },
+    {
+      "tag": "EADV",
+      "count": 1,
+      "href": "/research/?tag=EADV",
+      "x": 0.1238332986831665,
+      "y": 0.48120570182800293,
+      "cluster": 7
+    },
+    {
+      "tag": "ESID",
+      "count": 1,
+      "href": "/cv/?tag=ESID",
+      "x": 0.1622427999973297,
+      "y": 0.5198268890380859,
+      "cluster": 7
+    },
+    {
+      "tag": "GTEX",
+      "count": 1,
+      "href": "/research/?tag=GTEX",
+      "x": 0.2595832943916321,
+      "y": 0.5595278739929199,
+      "cluster": 7
+    },
+    {
+      "tag": "GWAS",
+      "count": 1,
+      "href": "/research/?tag=GWAS",
+      "x": 0.5596812963485718,
+      "y": 0.739203155040741,
+      "cluster": 3
+    },
+    {
+      "tag": "HLA",
+      "count": 1,
+      "href": "/research/?tag=HLA",
+      "x": 0.16335554420948029,
+      "y": 0.28600451350212097,
+      "cluster": 6
+    },
+    {
+      "tag": "IHS4",
+      "count": 1,
+      "href": "/research/?tag=IHS4",
+      "x": 0.09065652638673782,
+      "y": 0.41691911220550537,
+      "cluster": 7
+    },
+    {
+      "tag": "ISC",
+      "count": 1,
+      "href": "/cv/?tag=ISC",
+      "x": 0.17270489037036896,
+      "y": 0.5628113150596619,
+      "cluster": 7
+    },
+    {
+      "tag": "KAS",
+      "count": 1,
+      "href": "/cv/?tag=KAS",
+      "x": 0.13090725243091583,
+      "y": 0.21448028087615967,
+      "cluster": 6
+    },
+    {
+      "tag": "LLM APIs",
+      "count": 1,
+      "href": "/research/?tag=LLM%20APIs",
+      "x": 0.38036826252937317,
+      "y": 0.5328189730644226,
+      "cluster": 2
+    },
+    {
+      "tag": "Oxford",
+      "count": 1,
+      "href": "/cv/?tag=Oxford",
+      "x": 0.07375544309616089,
+      "y": 0.24170663952827454,
+      "cluster": 6
+    },
+    {
+      "tag": "PROs",
+      "count": 1,
+      "href": "/research/?tag=PROs",
+      "x": 0.17864958941936493,
+      "y": 0.19677309691905975,
+      "cluster": 6
+    },
+    {
+      "tag": "Seq@Home",
+      "count": 1,
+      "href": "/cv/?tag=Seq%40Home",
+      "x": 0.2131980061531067,
+      "y": 0.4210908114910126,
+      "cluster": 7
+    },
+    {
+      "tag": "acne",
+      "count": 1,
+      "href": "/collaborators/?tag=acne",
+      "x": 0.8784852623939514,
+      "y": 0.5812070369720459,
+      "cluster": 1
+    },
+    {
+      "tag": "adipose",
+      "count": 1,
+      "href": "/research/?tag=adipose",
+      "x": 0.799435019493103,
+      "y": 0.580033540725708,
+      "cluster": 1
+    },
+    {
+      "tag": "biomedical AI",
+      "count": 1,
+      "href": "/collaborators/?tag=biomedical%20AI",
+      "x": 0.6474323272705078,
+      "y": 0.5058606863021851,
+      "cluster": 1
+    },
+    {
+      "tag": "clinical",
+      "count": 1,
+      "href": "/collaborators/?tag=clinical",
+      "x": 0.7706751823425293,
+      "y": 0.32857826352119446,
+      "cluster": 4
+    },
+    {
+      "tag": "clinical outcomes",
+      "count": 1,
+      "href": "/research/?tag=clinical%20outcomes",
+      "x": 0.7202773094177246,
+      "y": 0.2427891343832016,
+      "cluster": 4
+    },
+    {
+      "tag": "clinical staging",
+      "count": 1,
+      "href": "/research/?tag=clinical%20staging",
+      "x": 0.7627617120742798,
+      "y": 0.26935768127441406,
+      "cluster": 4
+    },
+    {
+      "tag": "clinical translation",
+      "count": 1,
+      "href": "/research/?tag=clinical%20translation",
+      "x": 0.7525959014892578,
+      "y": 0.3162408769130707,
+      "cluster": 4
+    },
+    {
+      "tag": "computer science",
+      "count": 1,
+      "href": "/collaborators/?tag=computer%20science",
+      "x": 0.5666842460632324,
+      "y": 0.3246961236000061,
+      "cluster": 2
+    },
+    {
+      "tag": "cryotherapy",
+      "count": 1,
+      "href": "/research/?tag=cryotherapy",
+      "x": 0.8554114699363708,
+      "y": 0.38222798705101013,
+      "cluster": 4
+    },
+    {
+      "tag": "digital health",
+      "count": 1,
+      "href": "/research/?tag=digital%20health",
+      "x": 0.7052830457687378,
+      "y": 0.4101824462413788,
+      "cluster": 2
+    },
+    {
+      "tag": "drug repurposing",
+      "count": 1,
+      "href": "/research/?tag=drug%20repurposing",
+      "x": 0.7807803750038147,
+      "y": 0.4304007887840271,
+      "cluster": 4
+    },
+    {
+      "tag": "education",
+      "count": 1,
+      "href": "/research/?tag=education",
+      "x": 0.29024094343185425,
+      "y": 0.07975167781114578,
+      "cluster": 0
+    },
+    {
+      "tag": "entrepreneurship",
+      "count": 1,
+      "href": "/collaborators/?tag=entrepreneurship",
+      "x": 0.29722917079925537,
+      "y": 0.14630712568759918,
+      "cluster": 0
+    },
+    {
+      "tag": "epigenetics",
+      "count": 1,
+      "href": "/collaborators/?tag=epigenetics",
+      "x": 0.6153397560119629,
+      "y": 0.7031500935554504,
+      "cluster": 3
+    },
+    {
+      "tag": "experimental model",
+      "count": 1,
+      "href": "/research/?tag=experimental%20model",
+      "x": 0.4627808630466461,
+      "y": 0.23036354780197144,
+      "cluster": 0
+    },
+    {
+      "tag": "foundation models",
+      "count": 1,
+      "href": "/research/?tag=foundation%20models",
+      "x": 0.45211946964263916,
+      "y": 0.26510611176490784,
+      "cluster": 0
+    },
+    {
+      "tag": "gastroenterology",
+      "count": 1,
+      "href": "/collaborators/?tag=gastroenterology",
+      "x": 0.8248276710510254,
+      "y": 0.2544404864311218,
+      "cluster": 4
+    },
+    {
+      "tag": "genetics",
+      "count": 1,
+      "href": "/research/?tag=genetics",
+      "x": 0.5948019027709961,
+      "y": 0.7323741912841797,
+      "cluster": 3
+    },
+    {
+      "tag": "grant",
+      "count": 1,
+      "href": "/cv/?tag=grant",
+      "x": 0.21372485160827637,
+      "y": 0.10949891805648804,
+      "cluster": 0
+    },
+    {
+      "tag": "graph machine learning",
+      "count": 1,
+      "href": "/research/?tag=graph%20machine%20learning",
+      "x": 0.5092955231666565,
+      "y": 0.44812461733818054,
+      "cluster": 2
+    },
+    {
+      "tag": "immune disease",
+      "count": 1,
+      "href": "/collaborators/?tag=immune%20disease",
+      "x": 0.9058365225791931,
+      "y": 0.8671132922172546,
+      "cluster": 5
+    },
+    {
+      "tag": "immunogenetics",
+      "count": 1,
+      "href": "/collaborators/?tag=immunogenetics",
+      "x": 0.8971563577651978,
+      "y": 0.9399999976158142,
+      "cluster": 5
+    },
+    {
+      "tag": "knowledge graphs",
+      "count": 1,
+      "href": "/research/?tag=knowledge%20graphs",
+      "x": 0.515597403049469,
+      "y": 0.42811861634254456,
+      "cluster": 2
+    },
+    {
+      "tag": "longitudinal",
+      "count": 1,
+      "href": "/research/?tag=longitudinal",
+      "x": 0.40223369002342224,
+      "y": 0.2929755449295044,
+      "cluster": 0
+    },
+    {
+      "tag": "medical informatics",
+      "count": 1,
+      "href": "/collaborators/?tag=medical%20informatics",
+      "x": 0.6589797735214233,
+      "y": 0.42844274640083313,
+      "cluster": 2
+    },
+    {
+      "tag": "medicine",
+      "count": 1,
+      "href": "/collaborators/?tag=medicine",
+      "x": 0.7976089715957642,
+      "y": 0.44716164469718933,
+      "cluster": 4
+    },
+    {
+      "tag": "mucosal immunology",
+      "count": 1,
+      "href": "/collaborators/?tag=mucosal%20immunology",
+      "x": 0.9399999976158142,
+      "y": 0.9019351601600647,
+      "cluster": 5
+    },
+    {
+      "tag": "multiomics",
+      "count": 1,
+      "href": "/collaborators/?tag=multiomics",
+      "x": 0.6479917764663696,
+      "y": 0.5600807070732117,
+      "cluster": 1
+    },
+    {
+      "tag": "nextflow",
+      "count": 1,
+      "href": "/research/?tag=nextflow",
+      "x": 0.34633493423461914,
+      "y": 0.5498984456062317,
+      "cluster": 2
+    },
+    {
+      "tag": "omics",
+      "count": 1,
+      "href": "/research/?tag=omics",
+      "x": 0.1762603521347046,
+      "y": 0.3829491436481476,
+      "cluster": 7
+    },
+    {
+      "tag": "paediatric gastroenterology",
+      "count": 1,
+      "href": "/collaborators/?tag=paediatric%20gastroenterology",
+      "x": 0.803066611289978,
+      "y": 0.22430501878261566,
+      "cluster": 4
+    },
+    {
+      "tag": "pipelines",
+      "count": 1,
+      "href": "/research/?tag=pipelines",
+      "x": 0.4345977306365967,
+      "y": 0.462423712015152,
+      "cluster": 2
+    },
+    {
+      "tag": "poster",
+      "count": 1,
+      "href": "/research/?tag=poster",
+      "x": 0.1697717159986496,
+      "y": 0.05999999865889549,
+      "cluster": 0
+    },
+    {
+      "tag": "python",
+      "count": 1,
+      "href": "/research/?tag=python",
+      "x": 0.5915650725364685,
+      "y": 0.34081438183784485,
+      "cluster": 2
+    },
+    {
+      "tag": "reliability",
+      "count": 1,
+      "href": "/research/?tag=reliability",
+      "x": 0.33017903566360474,
+      "y": 0.1527060866355896,
+      "cluster": 0
+    },
+    {
+      "tag": "research",
+      "count": 1,
+      "href": "/cv/?tag=research",
+      "x": 0.3538857102394104,
+      "y": 0.06608247011899948,
+      "cluster": 0
+    },
+    {
+      "tag": "scholarship",
+      "count": 1,
+      "href": "/cv/?tag=scholarship",
+      "x": 0.24592117965221405,
+      "y": 0.06602192670106888,
+      "cluster": 0
+    },
+    {
+      "tag": "sebocytes",
+      "count": 1,
+      "href": "/research/?tag=sebocytes",
+      "x": 0.8291269540786743,
+      "y": 0.9369842410087585,
+      "cluster": 5
+    },
+    {
+      "tag": "startup",
+      "count": 1,
+      "href": "/cv/?tag=startup",
+      "x": 0.33886176347732544,
+      "y": 0.2576492428779602,
+      "cluster": 0
+    },
+    {
+      "tag": "student research",
+      "count": 1,
+      "href": "/research/?tag=student%20research",
+      "x": 0.340999960899353,
+      "y": 0.09044113755226135,
+      "cluster": 0
+    },
+    {
+      "tag": "systems biology",
+      "count": 1,
+      "href": "/research/?tag=systems%20biology",
+      "x": 0.6789816617965698,
+      "y": 0.6168211102485657,
+      "cluster": 1
+    },
+    {
+      "tag": "thesis",
+      "count": 1,
+      "href": "/research/?tag=thesis",
+      "x": 0.40226659178733826,
+      "y": 0.12034352123737335,
+      "cluster": 0
+    },
+    {
+      "tag": "translational data science",
+      "count": 1,
+      "href": "/collaborators/?tag=translational%20data%20science",
+      "x": 0.5648966431617737,
+      "y": 0.49080631136894226,
+      "cluster": 2
+    },
+    {
+      "tag": "warts",
+      "count": 1,
+      "href": "/research/?tag=warts",
+      "x": 0.8816000819206238,
+      "y": 0.43592414259910583,
+      "cluster": 4
+    }
+  ]
+}

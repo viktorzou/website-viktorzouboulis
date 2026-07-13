@@ -1,7 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import TagUmap from "../components/TagUmap.tsx";
 import { site } from "../data/site";
 import { getAllTags, tagLandingHref } from "../lib/tags";
+import tagUmap from "../data/tag-umap.json";
 
 const tags = await getAllTags();
 const counts = tags.map((t) => t.count);
@@ -15,7 +17,6 @@ function weight(count: number) {
 
 function fontSize(count: number) {
   const w = weight(count);
-  // rem: 0.8 → 2.4
   return (0.8 + w * 1.6).toFixed(2);
 }
 
@@ -30,12 +31,19 @@ function opacity(count: number) {
     <p class="section-label mb-4">07 — tags</p>
     <h1 class="text-3xl font-medium text-ink sm:text-4xl dark:text-paper">Tag map</h1>
     <p class="mt-4 max-w-2xl text-base leading-relaxed text-muted">
-      Word map of every tag across papers, projects, posters, people, conferences, and
-      prizes. Size scales with how often a tag appears. Click a tag to open its primary
-      filter view.
+      Semantic layout of every tag across papers, projects, posters, people, conferences,
+      and prizes — local MiniLM embeddings projected with UMAP. Islands are named from
+      their top tags. Below: classic word map by frequency.
     </p>
 
     <div class="rule mt-10"></div>
+
+    <p class="section-label mt-10 mb-6">
+      // semantic map · {tagUmap.points.length} tags · {tagUmap.islands.length} islands
+    </p>
+    <TagUmap client:load data={tagUmap} />
+
+    <div class="rule mt-16"></div>
 
     <p class="section-label mt-10 mb-6">// word map · {tags.length} tags</p>
 
