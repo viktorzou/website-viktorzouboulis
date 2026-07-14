@@ -123,8 +123,6 @@ const SUPERVISOR_KINDS = new Set([
   "former-supervisor",
 ]);
 
-const HUB_PERSON_KINDS = new Set(["student"]);
-
 const orgNodeIds = new Set<string>();
 const orgNodes: OrgGraphNode[] = [];
 const orgEdges: OrgGraphEdge[] = [];
@@ -295,7 +293,9 @@ for (const person of collaborators) {
 
   if (SUPERVISOR_KINDS.has(person.data.kind ?? "collaborator")) {
     pushEdge(hubId, pid, "supervisor");
-  } else if (HUB_PERSON_KINDS.has(person.data.kind ?? "collaborator")) {
+  } else {
+    // Collaborators & students link to the hub (org path alone can leave
+    // external collaborators floating, e.g. FU Berlin / nanoCITE).
     pushEdge(hubId, pid, "hub");
   }
 }
@@ -313,6 +313,17 @@ for (const ids of peopleByLab.values()) {
     for (let j = i + 1; j < ids.length; j++) {
       pushEdge(`person:${ids[i]}`, `person:${ids[j]}`, "labmate");
     }
+  }
+}
+
+// Explicit collaborator↔collaborator links (e.g. cross-lab nanoCITE partners).
+for (const person of collaborators) {
+  for (const otherId of person.data.network ?? []) {
+    if (otherId === person.id) continue;
+    if (!collaborators.some((c) => c.id === otherId)) continue;
+    const a = person.id < otherId ? person.id : otherId;
+    const b = person.id < otherId ? otherId : person.id;
+    pushEdge(`person:${a}`, `person:${b}`, "labmate");
   }
 }
 

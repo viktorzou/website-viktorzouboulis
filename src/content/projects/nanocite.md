@@ -10,15 +10,19 @@ papers: []
 people:
   - "simon-tautz"
   - "alexandra-noble"
+  - "andre-aquime-goncalves"
+  - "rudolf-schlechter-jahn"
   - "holm-uhlig"
 labs:
   - "uhlig-group"
 departments:
   - "chg"
+  - "idrm"
 institutions:
   - "oxford"
+  - "fu-berlin"
 companies:
   - "oxford-nanopore"
 ---
 
-Pipeline and tooling work in the Uhlig Group aimed at taking long-read sequencing from research workflows into settings where turnaround and interpretability matter for patient care. Collaborators include Alexandra Noble (Nanopore / IBD methylation assays) and supervised student Simon Tautz (TUM).
+Pipeline and tooling work in the Uhlig Group aimed at taking long-read sequencing from research workflows into settings where turnaround and interpretability matter for patient care. Collaborators include Alexandra Noble (Nanopore / IBD methylation assays), Andre Aquime Goncalves and Rudolf Schlechter Jahn (pipeline application / data; Rudolf works with Alexandra Noble), and supervised student Simon Tautz.
