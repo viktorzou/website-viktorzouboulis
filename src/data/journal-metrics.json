@@ -1,0 +1,49 @@
+{
+  "Aktuelle Dermatologie": {
+    "displayName": "Aktuelle Dermatologie",
+    "impactFactor": 0.4,
+    "hIndex": 18
+  },
+  "British Journal of Dermatology": {
+    "displayName": "British Journal of Dermatology",
+    "impactFactor": 10.3,
+    "hIndex": 214,
+    "issn": "1365-2133"
+  },
+  "Dermatology": {
+    "displayName": "Dermatology",
+    "impactFactor": 3.4,
+    "hIndex": 98,
+    "issn": "1018-8665"
+  },
+  "JDDG: Journal der Deutschen Dermatologischen Gesellschaft": {
+    "displayName": "Journal der Deutschen Dermatologischen Gesellschaft",
+    "impactFactor": 4.5,
+    "hIndex": 72,
+    "issn": "1610-0379"
+  },
+  "Journal of Dermatological Treatment": {
+    "displayName": "Journal of Dermatological Treatment",
+    "impactFactor": 2.9,
+    "hIndex": 64,
+    "issn": "0954-6634"
+  },
+  "Journal of the European Academy of Dermatology and Venereology": {
+    "displayName": "Journal of the European Academy of Dermatology and Venereology",
+    "impactFactor": 9.2,
+    "hIndex": 128,
+    "issn": "1468-3083"
+  },
+  "Pharmaceutics": {
+    "displayName": "Pharmaceutics",
+    "impactFactor": 4.9,
+    "hIndex": 98,
+    "issn": "1999-4923"
+  },
+  "npj Systems Biology and Applications": {
+    "displayName": "npj Systems Biology and Applications",
+    "impactFactor": 4.1,
+    "hIndex": 42,
+    "issn": "2056-7189"
+  }
+}
