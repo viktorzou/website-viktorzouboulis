@@ -6,6 +6,9 @@ tags: ["knowledge graphs", "machine learning", "graph machine learning", "databa
 status: "active"
 pinned: true
 papers: []
+interestingPapers:
+  - "iuis-phenotypic-classification-2024"
+  - "monogenic-ibd-taxonomy"
 people:
   - "holm-uhlig"
   - "samuel-huber"
