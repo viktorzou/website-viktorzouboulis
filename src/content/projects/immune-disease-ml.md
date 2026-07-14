@@ -14,6 +14,7 @@ people:
   - "samuel-huber"
   - "calliope-dendrou"
   - "frank-ueckert"
+  - "ahmad-al-shaibi"
 labs:
   - "uhlig-group"
 departments:

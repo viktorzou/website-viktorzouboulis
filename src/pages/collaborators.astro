@@ -304,10 +304,11 @@ for (const person of collaborators) {
   }
 }
 
-// Labmates — person↔person for shared lab
+// Labmates — person↔person for shared *current* lab only (alumni do not
+// form a clique with people they never overlapped with).
 const peopleByLab = new Map<string, string[]>();
 for (const person of collaborators) {
-  if (!person.data.lab) continue;
+  if (!person.data.lab || person.data.formerLab) continue;
   const list = peopleByLab.get(person.data.lab) ?? [];
   list.push(person.id);
   peopleByLab.set(person.data.lab, list);
@@ -331,7 +332,8 @@ for (const person of collaborators) {
   }
 }
 
-// You are a labmate of Uhlig Group members (peers; supervisors stay on the supervisor edge).
+// You are a labmate of Uhlig Group peers (current + former alumni you
+// overlapped with; supervisors stay on the supervisor edge).
 const MY_LABS = new Set(["uhlig-group"]);
 for (const person of collaborators) {
   if (!person.data.lab || !MY_LABS.has(person.data.lab)) continue;

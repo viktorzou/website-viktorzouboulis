@@ -261,9 +261,10 @@ export default function CoauthorGraph({ nodes, edges }: Props) {
               const t = d.target as SimNode;
               // Pack other-author dots in shared-paper bubbles.
               if (s.kind === "author" || t.kind === "author") {
-                return Math.max(10, 18 - (d.weight - 1) * 2);
+                return Math.max(8, 16 - (d.weight - 1) * 3);
               }
-              return Math.max(18, 52 - (d.weight - 1) * 7);
+              // Shared papers pull people tightly together (saturates ~6).
+              return Math.max(12, 62 - (d.weight - 1) * 11);
             }
             if (d.relation === "journal") return 72;
             if (d.relation === "cites") return 90;
@@ -275,7 +276,8 @@ export default function CoauthorGraph({ nodes, edges }: Props) {
           })
           .strength((d) => {
             if (d.relation === "coauthor") {
-              return Math.min(1, 0.4 + d.weight * 0.14);
+              // Weight = shared paper count; allow >1 for hard clustering.
+              return Math.min(1.55, 0.5 + d.weight * 0.22);
             }
             if (d.relation === "journal") return 0.3;
             if (d.relation === "cites") return 0.45;
@@ -462,13 +464,19 @@ export default function CoauthorGraph({ nodes, edges }: Props) {
                 y2={t.y}
                 stroke={active ? "#0F766E" : stroke}
                 strokeOpacity={
-                  dim ? 0.04 : active ? 0.9 : link.relation === "coauthor" ? 0.35 : 0.28
+                  dim
+                    ? 0.04
+                    : active
+                      ? 0.9
+                      : link.relation === "coauthor"
+                        ? Math.min(0.85, 0.28 + link.weight * 0.12)
+                        : 0.28
                 }
                 strokeWidth={
                   active
                     ? 1.8
                     : link.relation === "coauthor"
-                      ? 1 + Math.min(link.weight, 6) * 0.5
+                      ? 1.1 + Math.min(link.weight, 8) * 0.75
                       : isCite
                         ? 1.4
                         : 1
@@ -588,7 +596,8 @@ export default function CoauthorGraph({ nodes, edges }: Props) {
         ) : (
           <p className="text-muted">
             <span className="text-accent">›</span> paper size ∝ citations ·
-            journal size ∝ IF · other authors = dots only · rose dashed = cites
+            journal size ∝ IF · purple coauthor springs tighter with each shared
+            paper · other authors = dots · rose dashed = cites
             {pageFiltered && (
               <span>
                 {" "}

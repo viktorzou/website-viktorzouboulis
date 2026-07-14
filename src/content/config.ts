@@ -88,6 +88,11 @@ const collaborators = defineCollection({
     departments: z.array(z.string()).default([]),
     /** Lab id under src/content/labs/ */
     lab: z.string().optional(),
+    /**
+     * Former lab member — keeps lab affiliation/org path, but skips
+     * automatic person↔person labmate springs with current members.
+     */
+    formerLab: z.boolean().optional().default(false),
     /** Company id under src/content/companies/ */
     company: z.string().optional(),
     /** supervisor / former supervisor / collaborator — used for page sections */
