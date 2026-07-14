@@ -108,6 +108,8 @@ const collaborators = defineCollection({
     tags: z.array(z.string()).default([]),
     /** Citation forms as they appear in paper author lists, e.g. "Adlung L." */
     aliases: z.array(z.string()).default([]),
+    /** Explicit person ids this collaborator works with (org-graph labmate springs). */
+    network: z.array(z.string()).default([]),
     links: z
       .array(
         z.object({
