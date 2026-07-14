@@ -33,7 +33,10 @@ export function collaboratorAliases(person: Collaborator): string[] {
   ];
 }
 
-export function paperMatchesCollaborator(paper: Paper, person: Collaborator) {
+export function paperMatchesCollaborator(
+  paper: { data: { authors: string } },
+  person: Collaborator,
+) {
   const authors = paper.data.authors;
   return collaboratorAliases(person).some((alias) =>
     authors.toLowerCase().includes(alias.toLowerCase()),
@@ -67,7 +70,10 @@ export function paperIncludesOwn(authors: string) {
 }
 
 /** Collaborators whose aliases match a paper's author line. */
-export function peopleOnPaper(paper: Paper, collaborators: Collaborator[]) {
+export function peopleOnPaper(
+  paper: { data: { authors: string } },
+  collaborators: Collaborator[],
+) {
   return collaborators.filter((person) =>
     paperMatchesCollaborator(paper, person),
   );
@@ -200,9 +206,10 @@ export type CoauthorLink = {
 /**
  * Person–person coauthorship among recognized collaborators
  * (and optionally a hub id for Viktor when he coauthors with them).
+ * Accepts own papers and interesting / curated papers alike.
  */
 export function buildCoauthorLinks(
-  papers: Paper[],
+  papers: Array<Paper | InterestingPaper>,
   collaborators: Collaborator[],
   opts?: { hubId?: string },
 ): CoauthorLink[] {

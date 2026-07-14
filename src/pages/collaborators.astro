@@ -225,6 +225,10 @@ for (const lab of labs) {
     meta: lab.data.summary,
   });
   pushEdge(`department:${lab.data.department}`, `lab:${lab.id}`, "org");
+  for (const deptId of lab.data.departments ?? []) {
+    if (deptId === lab.data.department) continue;
+    pushEdge(`department:${deptId}`, `lab:${lab.id}`, "cross");
+  }
   pushEdge(hubId, `lab:${lab.id}`, "hub");
 }
 
@@ -335,11 +339,14 @@ for (const person of collaborators) {
   pushEdge(hubId, `person:${person.id}`, "labmate");
 }
 
-// Coauthorship among recognized people (+ hub when Viktor is on the paper)
+// Coauthorship among recognized people (+ hub when Viktor is on the paper).
+// Includes interesting / curated papers (e.g. IL-10 NEJM), not only own papers.
 const HUB_COAUTHOR_TOKEN = "__viktor__";
-for (const link of buildCoauthorLinks(papers, collaborators, {
-  hubId: HUB_COAUTHOR_TOKEN,
-})) {
+for (const link of buildCoauthorLinks(
+  [...papers, ...interestingPapers],
+  collaborators,
+  { hubId: HUB_COAUTHOR_TOKEN },
+)) {
   const from =
     link.a === HUB_COAUTHOR_TOKEN ? hubId : `person:${link.a}`;
   const to =

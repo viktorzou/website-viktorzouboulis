@@ -135,7 +135,10 @@ export default function OrgGraph({ nodes, edges }: Props) {
         forceLink<SimNode, SimLink>(simLinks)
           .id((d) => d.id)
           .distance((d) => {
-            if (d.relation === "coauthor") return 52 - Math.min(d.weight, 4) * 6;
+            // More shared papers → shorter spring (count saturates at 6).
+            if (d.relation === "coauthor") {
+              return Math.max(20, 58 - (d.weight - 1) * 8);
+            }
             if (d.relation === "labmate") return 44;
             if (d.relation === "supervisor") return 58;
             if (d.relation === "hub") return 90;
@@ -143,7 +146,9 @@ export default function OrgGraph({ nodes, edges }: Props) {
             return 100;
           })
           .strength((d) => {
-            if (d.relation === "coauthor") return 0.55 + Math.min(d.weight, 3) * 0.08;
+            if (d.relation === "coauthor") {
+              return Math.min(1, 0.42 + d.weight * 0.14);
+            }
             if (d.relation === "labmate") return 0.4;
             if (d.relation === "supervisor") return 0.5;
             if (d.relation === "org") return 0.35;
@@ -331,7 +336,7 @@ export default function OrgGraph({ nodes, edges }: Props) {
                   active
                     ? 1.8
                     : relation === "coauthor"
-                      ? 1 + Math.min(link.weight, 3) * 0.4
+                      ? 1 + Math.min(link.weight, 6) * 0.55
                       : 1
                 }
                 strokeDasharray={style.dash}
@@ -438,7 +443,8 @@ export default function OrgGraph({ nodes, edges }: Props) {
         ) : (
           <p className="text-muted">
             <span className="text-accent">›</span> force layout — filter by colour
-            (level) or link type; rose = supervisor · purple = coauthor
+            (level) or link type; rose = supervisor · purple = coauthor (thicker /
+            closer = more shared papers)
           </p>
         )}
       </div>

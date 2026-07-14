@@ -9,10 +9,13 @@ url: "https://doi.org/10.1056/NEJMoa2513654"
 people:
   - "holm-uhlig"
   - "pai-jui-yeh"
+  - "simon-travis"
+  - "alissa-walsh"
 labs:
   - "uhlig-group"
 departments:
   - "chg"
+  - "tgu"
 institutions:
   - "oxford"
 ---

@@ -156,6 +156,8 @@ const labs = defineCollection({
     name: z.string(),
     /** Department id under src/content/departments/ */
     department: z.string(),
+    /** Additional department ids (e.g. former home / ongoing ties). */
+    departments: z.array(z.string()).default([]),
     summary: z.string().optional(),
     url: z.string().url().optional(),
     order: z.number().optional().default(100),

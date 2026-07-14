@@ -261,9 +261,9 @@ export default function CoauthorGraph({ nodes, edges }: Props) {
               const t = d.target as SimNode;
               // Pack other-author dots in shared-paper bubbles.
               if (s.kind === "author" || t.kind === "author") {
-                return 18 - Math.min(d.weight, 3) * 2;
+                return Math.max(10, 18 - (d.weight - 1) * 2);
               }
-              return 48 - Math.min(d.weight, 4) * 5;
+              return Math.max(18, 52 - (d.weight - 1) * 7);
             }
             if (d.relation === "journal") return 72;
             if (d.relation === "cites") return 90;
@@ -274,7 +274,9 @@ export default function CoauthorGraph({ nodes, edges }: Props) {
             return 64;
           })
           .strength((d) => {
-            if (d.relation === "coauthor") return 0.5 + Math.min(d.weight, 3) * 0.1;
+            if (d.relation === "coauthor") {
+              return Math.min(1, 0.4 + d.weight * 0.14);
+            }
             if (d.relation === "journal") return 0.3;
             if (d.relation === "cites") return 0.45;
             return 0.35;
@@ -466,7 +468,7 @@ export default function CoauthorGraph({ nodes, edges }: Props) {
                   active
                     ? 1.8
                     : link.relation === "coauthor"
-                      ? 1 + Math.min(link.weight, 3) * 0.35
+                      ? 1 + Math.min(link.weight, 6) * 0.5
                       : isCite
                         ? 1.4
                         : 1

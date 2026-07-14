@@ -8,10 +8,12 @@ tags: ["IBD", "IL-10", "autoantibodies", "immunology"]
 url: "https://doi.org/10.1056/NEJMoa2312302"
 people:
   - "holm-uhlig"
+  - "simon-travis"
 labs:
   - "uhlig-group"
 departments:
   - "chg"
+  - "tgu"
 institutions:
   - "oxford"
 ---
