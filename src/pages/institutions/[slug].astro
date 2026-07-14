@@ -17,6 +17,15 @@ export async function getStaticPaths() {
 const { institution } = Astro.props;
 const { Content } = await render(institution);
 
+const allInstitutions = await getCollection("institutions");
+const childInstitutions = allInstitutions
+  .filter((i) => i.data.parent === institution.id)
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+
+const parentInstitution = institution.data.parent
+  ? allInstitutions.find((i) => i.id === institution.data.parent)
+  : undefined;
+
 const allDepartments = await getCollection("departments");
 const departments = allDepartments
   .filter((d) => d.data.institution === institution.id)
@@ -65,6 +74,11 @@ function highlightAuthors(authors: string) {
 
     <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
       <span class="text-accent">{institution.data.short}</span>
+      {parentInstitution && (
+        <a href={`/institutions/${parentInstitution.id}/`} class="link-accent">
+          ← {parentInstitution.data.short}
+        </a>
+      )}
       {institution.data.url && (
         <a
           href={institution.data.url}
@@ -86,6 +100,26 @@ function highlightAuthors(authors: string) {
     <div class="prose prose-ink mt-10 max-w-none dark:prose-invert">
       <Content />
     </div>
+
+    {childInstitutions.length > 0 && (
+      <section id="affiliates" class="scroll-mt-20 pt-12">
+        <p class="section-label mb-6">// affiliated institutions</p>
+        <ul>
+          {childInstitutions.map((child) => (
+            <li class="border-b border-ink/10 py-5 first:border-t dark:border-paper/10">
+              <h2 class="text-base font-medium text-ink dark:text-paper">
+                <a href={`/institutions/${child.id}/`} class="hover:text-accent">
+                  {child.data.name}
+                </a>
+              </h2>
+              {child.data.summary && (
+                <p class="mt-2 text-sm leading-relaxed text-muted">{child.data.summary}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
     {departments.length > 0 && (
       <section id="departments" class="scroll-mt-20 pt-12">

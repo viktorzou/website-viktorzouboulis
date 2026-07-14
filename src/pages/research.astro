@@ -1,10 +1,22 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import CoauthorGraph from "../components/CoauthorGraph.tsx";
+import type {
+  CoauthorGraphEdge,
+  CoauthorGraphNode,
+} from "../components/CoauthorGraph.tsx";
+import CitationsByYear from "../components/CitationsByYear.tsx";
+import type { CitationPaperPoint } from "../components/CitationsByYear.tsx";
 import { getCollection } from "astro:content";
 import { site } from "../data/site";
-import { formatAuthorsHtml, isOwnFirstAuthor } from "../lib/authors";
+import {
+  buildFullCoauthorLinks,
+  formatAuthorsHtml,
+  isOwnFirstAuthor,
+  resolvePaperAuthors,
+} from "../lib/authors";
 import { getGithubStatsByUrls, parseGithubRepo } from "../lib/github";
-import { extractDoi, getPaperMetricsByDois, getPubMetrics } from "../lib/metrics";
+import { extractDoi, getPaperMetricsByDois, getPubMetrics, getJournalMetricsByVenues, internalCitationEdges } from "../lib/metrics";
 import { departmentLabel, institutionLabel, labLabel } from "../lib/orgs";
 
 const papers = (await getCollection("papers")).sort((a, b) => {
@@ -37,6 +49,19 @@ const paperMetrics = await getPaperMetricsByDois(
     ...interestingPapers.map((p) => extractDoi(p.data.url)),
   ].filter((d): d is string => Boolean(d)),
 );
+
+const venues = [...new Set(papers.map((p) => p.data.venue.trim()).filter(Boolean))];
+const sourceIdsByVenue = new Map<string, string>();
+for (const paper of papers) {
+  const doi = extractDoi(paper.data.url);
+  const sourceId = doi ? paperMetrics.get(doi)?.sourceId : undefined;
+  if (sourceId && paper.data.venue.trim()) {
+    sourceIdsByVenue.set(paper.data.venue.trim(), sourceId);
+  }
+}
+const journalMetrics = await getJournalMetricsByVenues(venues, {
+  sourceIdsByVenue,
+});
 const collaborators = await getCollection("collaborators");
 const institutions = await getCollection("institutions");
 const departments = await getCollection("departments");
@@ -55,6 +80,21 @@ const years = [
     ...interestingPapers.map((p) => p.data.year),
   ]),
 ].sort((a, b) => b - a);
+
+const paperTags = [
+  ...new Set(papers.flatMap((p) => p.data.tags)),
+].sort((a, b) => a.localeCompare(b));
+
+const citationPoints: CitationPaperPoint[] = papers.map((p) => {
+  const doi = extractDoi(p.data.url);
+  const cites = doi ? (paperMetrics.get(doi)?.citations ?? 0) : 0;
+  return {
+    year: p.data.year,
+    citations: cites,
+    tags: p.data.tags,
+  };
+});
+
 function blogHref(id: string | undefined) {
   if (!id || !blogIds.has(id)) return null;
   return `/blog/${id}/`;
@@ -79,6 +119,105 @@ function filterHref(opts: {
 
 function tagsAttr(tags: string[]) {
   return tags.join("|");
+}
+
+const hubId = "hub:viktor";
+const coNodeIds = new Set<string>();
+const coNodes: CoauthorGraphNode[] = [];
+const coEdges: CoauthorGraphEdge[] = [];
+const coEdgeKeys = new Set<string>();
+
+function pushCoNode(node: CoauthorGraphNode) {
+  if (coNodeIds.has(node.id)) return;
+  coNodeIds.add(node.id);
+  coNodes.push(node);
+}
+
+function pushCoEdge(
+  from: string,
+  to: string,
+  relation: CoauthorGraphEdge["relation"],
+  weight = 1,
+) {
+  const key = `${from}->${to}:${relation}`;
+  if (coEdgeKeys.has(key) || from === to) return;
+  if (!coNodeIds.has(from) || !coNodeIds.has(to)) return;
+  coEdgeKeys.add(key);
+  coEdges.push({ from, to, relation, weight });
+}
+
+pushCoNode({
+  id: hubId,
+  kind: "hub",
+  label: "V. Zouboulis",
+  href: "/about/",
+  meta: "you",
+});
+
+for (const paper of papers) {
+  const paperNodeId = `paper:${paper.id}`;
+  const doi = extractDoi(paper.data.url);
+  const citations = doi ? (paperMetrics.get(doi)?.citations ?? 0) : 0;
+  pushCoNode({
+    id: paperNodeId,
+    kind: "paper",
+    label: paper.data.title,
+    href: `#paper-${paper.id}`,
+    meta: paper.data.venue,
+    year: paper.data.year,
+    tags: paper.data.tags,
+    citations,
+  });
+
+  const venue = paper.data.venue.trim();
+  if (venue) {
+    const journalId = `journal:${venue
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")}`;
+    const jMetric = journalMetrics.get(venue);
+    pushCoNode({
+      id: journalId,
+      kind: "journal",
+      label: venue,
+      href: `#paper-${paper.id}`,
+      meta: jMetric
+        ? `IF ~ ${jMetric.impactFactor.toFixed(1)}${jMetric.source === "cache" ? " (cached)" : ""}`
+        : "venue",
+      impactFactor: jMetric?.impactFactor,
+    });
+    pushCoEdge(paperNodeId, journalId, "journal");
+  }
+
+  const authors = resolvePaperAuthors(paper.data.authors, collaborators, {
+    hubId,
+    hubHref: "/about/",
+  });
+
+  for (const author of authors) {
+    pushCoNode({
+      id: author.id,
+      kind: author.kind,
+      label: author.label,
+      href:
+        author.kind === "author"
+          ? `#paper-${paper.id}`
+          : author.href,
+      meta: author.meta,
+    });
+    pushCoEdge(author.id, paperNodeId, "authorship");
+  }
+}
+
+for (const link of buildFullCoauthorLinks(papers, collaborators, { hubId })) {
+  pushCoEdge(link.a, link.b, "coauthor", link.count);
+}
+
+for (const cite of internalCitationEdges(
+  papers.map((p) => ({ id: p.id, doi: extractDoi(p.data.url) })),
+  paperMetrics,
+)) {
+  pushCoEdge(`paper:${cite.from}`, `paper:${cite.to}`, "cites");
 }
 ---
 
@@ -108,7 +247,9 @@ function tagsAttr(tags: string[]) {
     >
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span class="section-label">jump</span>
+        <a href="#coauthors" class="link-accent">→ coauthor graph</a>
         <a href="#papers" class="link-accent">→ papers</a>
+        <a href="#citations-by-year" class="link-accent">→ citations / year</a>
         <a href="#posters" class="link-accent">→ posters</a>
         <a href="#projects" class="link-accent">→ projects</a>
         <a href="#interesting" class="link-accent">→ interesting papers</a>
@@ -151,11 +292,40 @@ function tagsAttr(tags: string[]) {
           </a>
         ))}
       </div>
+
+      {paperTags.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="section-label mr-1">tag</span>
+          {paperTags.map((tag) => (
+            <a
+              href={filterHref({ tag })}
+              class="tag-chip border border-ink/10 px-1.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent dark:border-paper/10"
+              data-tag={tag}
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      )}
     </nav>
 
     <div class="rule mt-12"></div>
 
-    <section id="papers" class="scroll-mt-20 pt-12" data-filter-section>
+    <section id="coauthors" class="scroll-mt-20 pt-12">
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// coauthor graph</p>
+        <a href="#papers" class="text-xs text-muted hover:text-accent">↓ papers</a>
+      </div>
+      <p class="mb-6 max-w-xl text-sm leading-relaxed text-muted">
+        Authors, venues, and citations my own papers. Year and tag filters above
+        also narrow this graph. Not closely connected co-authors are unlabelled
+        dots - name appears below on hover. Node sizes for papers and journals
+        show impact.
+      </p>
+      <CoauthorGraph client:load nodes={coNodes} edges={coEdges} />
+    </section>
+
+    <section id="papers" class="scroll-mt-20 pt-16" data-filter-section>
       <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
         <p class="section-label">
           // papers · {papers.length} · first author {firstAuthorCount} ·
@@ -171,7 +341,7 @@ function tagsAttr(tags: string[]) {
           >
             openalex ↗
           </a>
-          <a href="#posters" class="hover:text-accent">↓ posters</a>
+          <a href="#citations-by-year" class="hover:text-accent">↓ citations / year</a>
         </div>
       </div>
       <div class="mb-4 flex flex-wrap items-center gap-2 text-sm" aria-label="Sort papers">
@@ -200,8 +370,9 @@ function tagsAttr(tags: string[]) {
               const paperStat = doi ? paperMetrics.get(doi) : undefined;
               return (
                 <li
+                  id={`paper-${paper.id}`}
                   class:list={[
-                    "border-b border-ink/10 py-6 first:border-t dark:border-paper/10",
+                    "scroll-mt-20 border-b border-ink/10 py-6 first:border-t dark:border-paper/10",
                     paper.data.pinned && "is-pinned",
                   ]}
                   data-tags={tagsAttr(paper.data.tags)}
@@ -320,6 +491,14 @@ function tagsAttr(tags: string[]) {
           >ORCID</a>.
         </p>
       )}
+    </section>
+
+    <section id="citations-by-year" class="scroll-mt-20 pt-16">
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// citations by year</p>
+        <a href="#posters" class="text-xs text-muted hover:text-accent">↓ posters</a>
+      </div>
+      <CitationsByYear client:load papers={citationPoints} />
     </section>
 
     <section id="posters" class="scroll-mt-20 pt-16" data-filter-section>

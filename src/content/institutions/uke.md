@@ -1,7 +1,10 @@
 ---
 name: "University Medical Center Hamburg-Eppendorf (UKE)"
 short: "UKE"
-summary: "University Medical Center Hamburg-Eppendorf / University of Hamburg."
+summary: "University Medical Center Hamburg-Eppendorf — university hospital of Universität Hamburg."
 url: "https://www.uke.de"
-order: 2
+parent: "uhh"
+order: 3
 ---
+
+UKE is the university medical center affiliated with Universität Hamburg (UHH).

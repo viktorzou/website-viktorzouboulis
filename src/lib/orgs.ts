@@ -45,3 +45,15 @@ export function institutionForLab(
   if (!lab) return undefined;
   return departments.find((d) => d.id === lab.data.department)?.data.institution;
 }
+
+/** Department ids for a collaborator (primary first, then extras). */
+export function collaboratorDepartments(
+  person: CollectionEntry<"collaborators">,
+): string[] {
+  const ids: string[] = [];
+  if (person.data.department) ids.push(person.data.department);
+  for (const id of person.data.departments ?? []) {
+    if (!ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}

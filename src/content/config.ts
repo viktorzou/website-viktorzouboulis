@@ -82,8 +82,10 @@ const collaborators = defineCollection({
     affiliation: z.string(),
     /** Institution id under src/content/institutions/ */
     institution: z.string().optional(),
-    /** Department id under src/content/departments/ */
+    /** Primary department id under src/content/departments/ */
     department: z.string().optional(),
+    /** Additional department ids (multi-affiliation). Merged with `department`. */
+    departments: z.array(z.string()).default([]),
     /** Lab id under src/content/labs/ */
     lab: z.string().optional(),
     /** Company id under src/content/companies/ */
@@ -125,6 +127,8 @@ const institutions = defineCollection({
     short: z.string(),
     summary: z.string().optional(),
     url: z.string().url().optional(),
+    /** Parent institution id (e.g. UKE → Universität Hamburg) */
+    parent: z.string().optional(),
     order: z.number().optional().default(100),
   }),
 });

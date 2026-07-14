@@ -1,9 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import CollaboratorCard from "../components/CollaboratorCard.astro";
+import OrgGraph from "../components/OrgGraph.tsx";
+import type { OrgGraphEdge, OrgGraphNode } from "../components/OrgGraph.tsx";
 import { getCollection } from "astro:content";
 import { site } from "../data/site";
-import { sharedInterestingPapers, sharedPapers } from "../lib/authors";
+import { sharedInterestingPapers, sharedPapers, buildCoauthorLinks } from "../lib/authors";
+import { collaboratorDepartments } from "../lib/orgs";
 
 const collaborators = (await getCollection("collaborators")).sort((a, b) => {
   if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
@@ -21,7 +24,9 @@ function peopleAtInstitution(id: string) {
   return collaborators.filter((c) => c.data.institution === id).length;
 }
 function peopleAtDepartment(id: string) {
-  return collaborators.filter((c) => c.data.department === id).length;
+  return collaborators.filter((c) =>
+    collaboratorDepartments(c).includes(id),
+  ).length;
 }
 function peopleAtLab(id: string) {
   return collaborators.filter((c) => c.data.lab === id).length;
@@ -98,6 +103,238 @@ function filterHref(opts: {
   const q = params.toString();
   return q ? `/collaborators/?${q}` : "/collaborators/";
 }
+
+function personLabel(name: string) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  const last = parts[parts.length - 1];
+  const first = parts[0].replace(/\.$/, "");
+  return `${first[0]}. ${last}`;
+}
+
+function kindLabel(kind: string | undefined) {
+  if (kind === "former-supervisor") return "former supervisor";
+  return kind ?? "collaborator";
+}
+
+const SUPERVISOR_KINDS = new Set([
+  "supervisor",
+  "co-supervisor",
+  "former-supervisor",
+]);
+
+const HUB_PERSON_KINDS = new Set(["student"]);
+
+const orgNodeIds = new Set<string>();
+const orgNodes: OrgGraphNode[] = [];
+const orgEdges: OrgGraphEdge[] = [];
+const edgeKeys = new Set<string>();
+
+function pushNode(node: OrgGraphNode) {
+  if (orgNodeIds.has(node.id)) return;
+  orgNodeIds.add(node.id);
+  orgNodes.push(node);
+}
+
+function pushEdge(
+  from: string,
+  to: string,
+  relation: OrgGraphEdge["relation"] = "org",
+  weight = 1,
+) {
+  const key = `${from}->${to}:${relation ?? "org"}`;
+  if (edgeKeys.has(key) || from === to) return;
+  if (!orgNodeIds.has(from) || !orgNodeIds.has(to)) return;
+  edgeKeys.add(key);
+  orgEdges.push({ from, to, relation, weight });
+}
+
+const hubId = "hub:viktor";
+pushNode({
+  id: hubId,
+  kind: "hub",
+  label: "V. Zouboulis",
+  href: "/about/",
+  role: "you",
+  affiliation: site.name,
+  meta: "network hub",
+});
+
+for (const institution of institutions) {
+  pushNode({
+    id: `institution:${institution.id}`,
+    kind: "institution",
+    label: institution.data.short,
+    href: `/institutions/${institution.id}/`,
+    meta: institution.data.name,
+  });
+}
+
+for (const institution of institutions) {
+  if (institution.data.parent) {
+    pushEdge(
+      `institution:${institution.data.parent}`,
+      `institution:${institution.id}`,
+      "org",
+    );
+  }
+}
+
+for (const department of departments) {
+  pushNode({
+    id: `department:${department.id}`,
+    kind: "department",
+    label: department.data.short,
+    href: `/departments/${department.id}/`,
+    meta: department.data.name,
+  });
+  pushEdge(
+    `institution:${department.data.institution}`,
+    `department:${department.id}`,
+    "org",
+  );
+}
+
+// Hub links to your home institutions (affiliations you belong to).
+{
+  const HOME_INSTITUTIONS = new Set(["tu-berlin", "uhh", "oxford"]);
+  for (const institution of institutions) {
+    if (
+      HOME_INSTITUTIONS.has(institution.id) &&
+      !institution.data.parent
+    ) {
+      pushEdge(hubId, `institution:${institution.id}`, "hub");
+    }
+  }
+}
+
+// Hub links to departments you're a member of.
+{
+  const HOME_DEPARTMENTS = new Set(["nds", "chg"]);
+  for (const department of departments) {
+    if (HOME_DEPARTMENTS.has(department.id)) {
+      pushEdge(hubId, `department:${department.id}`, "hub");
+    }
+  }
+}
+
+for (const lab of labs) {
+  pushNode({
+    id: `lab:${lab.id}`,
+    kind: "lab",
+    label: lab.data.name,
+    href: `/labs/${lab.id}/`,
+    meta: lab.data.summary,
+  });
+  pushEdge(`department:${lab.data.department}`, `lab:${lab.id}`, "org");
+  pushEdge(hubId, `lab:${lab.id}`, "hub");
+}
+
+// MLBI is ZBH (UHH); keep an explicit university↔lab org edge for the graph.
+{
+  const mlbi = labs.find((l) => l.id === "mlbi");
+  if (mlbi) {
+    pushEdge("institution:uhh", "lab:mlbi", "org");
+  }
+}
+
+for (const company of companies) {
+  pushNode({
+    id: `company:${company.id}`,
+    kind: "company",
+    label: company.data.short,
+    href: `/companies/${company.id}/`,
+    meta: company.data.name,
+  });
+  pushEdge(hubId, `company:${company.id}`, "hub");
+}
+
+for (const person of collaborators) {
+  const pid = `person:${person.id}`;
+  const shared = sharedPapers(papers, person).slice(0, 2).map((p) => ({
+    title: p.data.title,
+    year: p.data.year,
+    href: p.data.url ?? `/collaborators/#${person.id}`,
+  }));
+
+  pushNode({
+    id: pid,
+    kind: "person",
+    label: personLabel(person.data.name),
+    href: `/collaborators/#${person.id}`,
+    meta: person.data.role,
+    role: kindLabel(person.data.kind),
+    affiliation: person.data.affiliation,
+    papers: shared,
+  });
+
+  let hasPrimary = false;
+  if (person.data.lab) {
+    pushEdge(`lab:${person.data.lab}`, pid, "org");
+    hasPrimary = true;
+  }
+  for (const deptId of collaboratorDepartments(person)) {
+    pushEdge(`department:${deptId}`, pid, hasPrimary ? "cross" : "org");
+    hasPrimary = true;
+  }
+  if (person.data.institution) {
+    pushEdge(
+      `institution:${person.data.institution}`,
+      pid,
+      hasPrimary ? "cross" : "org",
+    );
+    hasPrimary = true;
+  }
+  if (person.data.company) {
+    pushEdge(
+      `company:${person.data.company}`,
+      pid,
+      hasPrimary ? "cross" : "org",
+    );
+  }
+
+  if (SUPERVISOR_KINDS.has(person.data.kind ?? "collaborator")) {
+    pushEdge(hubId, pid, "supervisor");
+  } else if (HUB_PERSON_KINDS.has(person.data.kind ?? "collaborator")) {
+    pushEdge(hubId, pid, "hub");
+  }
+}
+
+// Labmates — person↔person for shared lab
+const peopleByLab = new Map<string, string[]>();
+for (const person of collaborators) {
+  if (!person.data.lab) continue;
+  const list = peopleByLab.get(person.data.lab) ?? [];
+  list.push(person.id);
+  peopleByLab.set(person.data.lab, list);
+}
+for (const ids of peopleByLab.values()) {
+  for (let i = 0; i < ids.length; i++) {
+    for (let j = i + 1; j < ids.length; j++) {
+      pushEdge(`person:${ids[i]}`, `person:${ids[j]}`, "labmate");
+    }
+  }
+}
+
+// You are a labmate of Uhlig Group members (peers; supervisors stay on the supervisor edge).
+const MY_LABS = new Set(["uhlig-group"]);
+for (const person of collaborators) {
+  if (!person.data.lab || !MY_LABS.has(person.data.lab)) continue;
+  if (SUPERVISOR_KINDS.has(person.data.kind ?? "collaborator")) continue;
+  pushEdge(hubId, `person:${person.id}`, "labmate");
+}
+
+// Coauthorship among recognized people (+ hub when Viktor is on the paper)
+const HUB_COAUTHOR_TOKEN = "__viktor__";
+for (const link of buildCoauthorLinks(papers, collaborators, {
+  hubId: HUB_COAUTHOR_TOKEN,
+})) {
+  const from =
+    link.a === HUB_COAUTHOR_TOKEN ? hubId : `person:${link.a}`;
+  const to =
+    link.b === HUB_COAUTHOR_TOKEN ? hubId : `person:${link.b}`;
+  pushEdge(from, to, "coauthor", link.count);
+}
 ---
 
 <Layout title={`Collaborators — ${site.name}`}>
@@ -112,12 +349,21 @@ function filterHref(opts: {
       <a href="/research/" class="link-accent">research</a> also jump here.
     </p>
 
+    <section id="org-graph" class="scroll-mt-20 mt-12">
+      <div class="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// organisation graph</p>
+        <a href="#supervisors" class="text-xs text-muted hover:text-accent">↓ people</a>
+      </div>
+      <OrgGraph client:load nodes={orgNodes} edges={orgEdges} />
+    </section>
+
     <nav
       class="mt-10 flex flex-col gap-4 border border-ink/10 p-4 text-sm dark:border-paper/10"
       aria-label="Collaborator filters"
     >
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span class="section-label">jump</span>
+        <a href="#org-graph" class="link-accent">→ org graph</a>
         {supervisors.length > 0 && (
           <a href="#supervisors" class="link-accent">→ supervisors</a>
         )}
@@ -357,6 +603,13 @@ function filterHref(opts: {
                   </div>
                   <div class="flex w-28 shrink-0 flex-col items-start gap-1 text-sm text-muted sm:items-end">
                     <span class="text-accent">{institution.data.short}</span>
+                    {institution.data.parent && (
+                      <span class="text-xs">
+                        via{" "}
+                        {institutionById.get(institution.data.parent)?.data.short ??
+                          institution.data.parent}
+                      </span>
+                    )}
                     <span class="text-xs">{peopleCount} people</span>
                     <a href={`/institutions/${institution.id}/`} class="link-accent text-xs">
                       → institution
@@ -639,7 +892,13 @@ function filterHref(opts: {
         items.forEach((item) => {
           const tags = (item.getAttribute("data-tags") || "").split("|").filter(Boolean);
           const itemInstitution = item.getAttribute("data-institution") || "";
-          const itemDepartment = item.getAttribute("data-department") || "";
+          const itemDepartments = (
+            item.getAttribute("data-departments") ||
+            item.getAttribute("data-department") ||
+            ""
+          )
+            .split("|")
+            .filter(Boolean);
           const itemLab = item.getAttribute("data-lab") || "";
           const tagOk =
             !tag || tags.some((t) => t.toLowerCase() === String(tag).toLowerCase());
@@ -648,7 +907,9 @@ function filterHref(opts: {
             itemInstitution.toLowerCase() === String(institution).toLowerCase();
           const departmentOk =
             !department ||
-            itemDepartment.toLowerCase() === String(department).toLowerCase();
+            itemDepartments.some(
+              (d) => d.toLowerCase() === String(department).toLowerCase(),
+            );
           const labOk = !lab || itemLab.toLowerCase() === String(lab).toLowerCase();
           const show = tagOk && institutionOk && departmentOk && labOk;
           item.hidden = !show;

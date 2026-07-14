@@ -4,6 +4,7 @@ import { getCollection, render } from "astro:content";
 import { site } from "../../data/site";
 import { formatAuthorsHtml } from "../../lib/authors";
 import { extractDoi, getPaperMetricsByDois } from "../../lib/metrics";
+import { collaboratorDepartments } from "../../lib/orgs";
 
 export async function getStaticPaths() {
   const departments = await getCollection("departments");
@@ -24,7 +25,7 @@ const labs = (await getCollection("labs"))
   .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
 
 const people = (await getCollection("collaborators"))
-  .filter((c) => c.data.department === department.id)
+  .filter((c) => collaboratorDepartments(c).includes(department.id))
   .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
 
 const projects = (await getCollection("projects"))

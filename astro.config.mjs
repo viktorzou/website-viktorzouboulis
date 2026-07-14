@@ -11,4 +11,11 @@ export default defineConfig({
     }),
     react(),
   ],
+  vite: {
+    // Keep graph/map deps prebundled so client islands don't 504 while Vite
+    // discovers them after the initial optimizeDeps scan.
+    optimizeDeps: {
+      include: ["d3-force", "d3-geo", "topojson-client"],
+    },
+  },
 });

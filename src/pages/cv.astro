@@ -1,7 +1,184 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import StationsPath from "../components/StationsPath.tsx";
+import type { Station } from "../components/StationsPath.tsx";
 import { getCollection } from "astro:content";
 import { site } from "../data/site";
+
+/**
+ * Places map. `months` sizes bubbles only and is never shown —
+ * replace with your exact living/visit durations when ready.
+ */
+const stations: Station[] = [
+  {
+    id: "berlin",
+    label: "Abitur & MINTgrün Physics — TU Berlin",
+    place: "Berlin",
+    period: "2008–17",
+    lat: 52.52,
+    lon: 13.4,
+    kinds: ["education"],
+    months: 108,
+    startYear: 2008,
+    endYear: 2017,
+    tags: ["Abitur", "STEM", "physics"],
+    href: "#education",
+  },
+  {
+    id: "budapest",
+    label: "Human Medicine — Semmelweis",
+    place: "Budapest",
+    period: "2017–18",
+    lat: 47.49,
+    lon: 19.04,
+    kinds: ["education"],
+    months: 12,
+    startYear: 2017,
+    endYear: 2018,
+    tags: ["medicine"],
+    href: "#education",
+  },
+  {
+    id: "hamburg",
+    label: "Medicine / Digital Health — UKE",
+    place: "Hamburg",
+    period: "2018–",
+    lat: 53.55,
+    lon: 10.0,
+    kinds: ["education", "experience", "conference"],
+    months: 96,
+    startYear: 2018,
+    ongoing: true,
+    tags: ["medicine", "digital health", "UKE"],
+    href: "#education",
+  },
+  {
+    id: "heidelberg",
+    label: "Surgical ER internship — UKHD",
+    place: "Heidelberg",
+    period: "clinical rotation",
+    lat: 49.4,
+    lon: 8.67,
+    kinds: ["experience"],
+    months: 2,
+    startYear: 2019,
+    relatesTo: "hamburg",
+    tags: ["clinical", "surgery", "internship"],
+    href: "#experience",
+  },
+  {
+    id: "berlin-clinical",
+    label: "Clinical rotation — Berlin",
+    place: "Berlin",
+    period: "clinical rotation",
+    lat: 52.52,
+    lon: 13.4,
+    kinds: ["experience"],
+    months: 2,
+    startYear: 2020,
+    relatesTo: "hamburg",
+    tags: ["clinical", "surgery", "internship"],
+    href: "#experience",
+  },
+  {
+    id: "ploen",
+    label: "Clinical rotation — Plön",
+    place: "Plön",
+    period: "clinical rotation",
+    lat: 54.16,
+    lon: 10.42,
+    kinds: ["experience"],
+    months: 2,
+    startYear: 2021,
+    relatesTo: "hamburg",
+    tags: ["clinical", "surgery", "internship"],
+    href: "#experience",
+  },
+  {
+    id: "hamburg-clinical",
+    label: "Clinical rotations — Hamburg hospitals",
+    place: "Hamburg",
+    period: "clinical rotation",
+    lat: 53.55,
+    lon: 10.0,
+    kinds: ["experience"],
+    months: 12,
+    startYear: 2019,
+    relatesTo: "hamburg",
+    tags: ["clinical", "surgery", "internship"],
+    href: "#experience",
+  },
+  {
+    id: "haifa",
+    label: "ISC World Congress — talk",
+    place: "Haifa",
+    period: "2019",
+    lat: 32.79,
+    lon: 34.99,
+    kinds: ["conference"],
+    months: 0.3,
+    startYear: 2019,
+    relatesTo: "hamburg",
+    tags: ["conference", "talk"],
+    href: "#conferences",
+  },
+  {
+    id: "florence",
+    label: "EHSF Conference",
+    place: "Florence",
+    period: "2023",
+    lat: 43.77,
+    lon: 11.25,
+    kinds: ["conference"],
+    months: 0.3,
+    startYear: 2023,
+    relatesTo: "hamburg",
+    tags: ["hidradenitis suppurativa", "dermatology", "conference"],
+    href: "#conferences",
+  },
+  {
+    id: "gcb-2023",
+    label: "GCB 2023 — poster",
+    place: "Hamburg",
+    period: "2023",
+    lat: 53.55,
+    lon: 10.0,
+    kinds: ["conference"],
+    months: 0.3,
+    startYear: 2023,
+    relatesTo: "hamburg",
+    tags: ["bioinformatics", "GCB", "single-cell", "poster", "digital health"],
+    href: "#conferences",
+  },
+  {
+    id: "oxford",
+    label: "Visiting researcher & MScR — CHG / NDS",
+    place: "Oxford",
+    period: "2024–",
+    lat: 51.75,
+    lon: -1.26,
+    kinds: ["education", "experience"],
+    months: 24,
+    startYear: 2024,
+    ongoing: true,
+    tags: ["medicine", "computational immunology", "Oxford", "surgery", "MSc", "NDS"],
+    href: "#education",
+  },
+  {
+    id: "marseille",
+    label: "ESID 2024",
+    place: "Marseille",
+    period: "2024",
+    lat: 43.3,
+    lon: 5.37,
+    kinds: ["conference"],
+    months: 0.3,
+    startYear: 2024,
+    relatesTo: "oxford",
+    tags: ["IEI", "conference"],
+    href: "#conferences",
+  },
+];
 
 const experiencePages = await getCollection("experience");
 const experienceFromPages = experiencePages.map((entry) => ({
@@ -329,6 +506,7 @@ function filterHref(opts: { tag?: string; year?: number | string }) {
     >
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span class="section-label">jump</span>
+        <a href="#stations" class="link-accent">→ stations</a>
         <a href="#education" class="link-accent">→ education</a>
         <a href="#experience" class="link-accent">→ experience</a>
         <a href="#conferences" class="link-accent">→ conferences</a>
@@ -374,6 +552,14 @@ function filterHref(opts: { tag?: string; year?: number | string }) {
     </p>
 
     <div class="rule mt-12"></div>
+
+    <section id="stations" class="scroll-mt-20 pt-12">
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <p class="section-label">// stations</p>
+        <a href="#education" class="text-xs text-muted hover:text-accent">↓ education</a>
+      </div>
+      <StationsPath client:load stations={stations} />
+    </section>
 
     <section id="education" class="scroll-mt-20 pt-12" data-filter-section>
       <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3">
@@ -766,6 +952,8 @@ function filterHref(opts: { tag?: string; year?: number | string }) {
           empty.classList.toggle("hidden", !showEmpty);
         }
       });
+
+      window.dispatchEvent(new Event("cv-filter-change"));
     }
 
     applyFilters();
