@@ -47,7 +47,14 @@ function kindLabel(kind: string) {
 }
 ---
 
-<Layout title={site.name}>
+<Layout
+  title={site.title}
+  description={site.description}
+  ogTitle={site.title}
+  ogDescription="Medical student and computational immunology researcher at Oxford, working on immune disease, IBD, knowledge graphs and machine learning."
+  ogType="profile"
+  canonical={`${site.url}/`}
+>
   <section class="page-wrap flex min-h-[calc(100vh-7.5rem)] flex-col justify-center py-16 sm:py-24">
     <p class="section-label animate-fade-up mb-6">~/viktor</p>
 

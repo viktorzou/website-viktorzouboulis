@@ -2,8 +2,30 @@
 import "../styles/tailwind.css";
 import { site } from "../data/site";
 
-const { title = site.name } = Astro.props;
+type Props = {
+  title?: string;
+  description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogType?: string;
+  /** Absolute canonical URL; defaults to site.url + pathname */
+  canonical?: string;
+};
+
+const {
+  title = site.title,
+  description = site.description,
+  ogTitle = title,
+  ogDescription = description,
+  ogType = "website",
+  canonical: canonicalProp,
+} = Astro.props as Props;
+
 const pathname = Astro.url.pathname;
+const canonical =
+  canonicalProp ??
+  new URL(pathname === "/" ? "/" : pathname.replace(/\/?$/, "/"), `${site.url}/`)
+    .href;
 
 const links = [
   { href: "/", label: "home" },
@@ -26,10 +48,13 @@ function isActive(href: string) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta
-      name="description"
-      content="Viktor Zouboulis — medical student and computational immunology researcher at the Centre for Human Genetics, University of Oxford."
-    />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
