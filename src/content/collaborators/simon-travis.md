@@ -18,6 +18,7 @@ tags:
 aliases:
   - "Travis S."
   - "Travis S.P."
+  - "Travis SP"
   - "Travis SPL"
   - "Travis S"
 links:

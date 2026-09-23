@@ -6,6 +6,8 @@ tags: ["IBD", "longitudinal", "immunology", "IL-10", "autoantibodies", "biomarke
 status: "active"
 stealth: true
 pinned: true
+papers:
+  - "il10-autoantibodies-paediatric-ibd"
 interestingPapers:
   - "il10-autoantibodies-ibd"
   - "il10-hla-ibd"

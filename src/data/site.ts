@@ -8,6 +8,10 @@ export const site = {
   title: "Viktor Zouboulis | Medical Researcher & Computational Immunologist",
   socials: [
     {
+      label: "oxford",
+      href: "https://www.chg.ox.ac.uk/people/viktor-zouboulis",
+    },
+    {
       label: "orcid",
       href: "https://orcid.org/0000-0001-5308-2394",
     },

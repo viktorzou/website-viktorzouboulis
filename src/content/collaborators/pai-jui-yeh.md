@@ -18,6 +18,7 @@ aliases:
   - "Yeh P.J."
   - "Yeh PJ"
   - "Yeh P.J"
+  - "Yeh P-J"
 links:
   - label: "CHG profile"
     href: "https://www.chg.ox.ac.uk/people/pai-jui-yeh"
